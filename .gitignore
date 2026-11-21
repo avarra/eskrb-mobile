@@ -44,3 +44,6 @@ example
 
 # AI slop
 .claude/
+
+# EAS local build output
+builds/

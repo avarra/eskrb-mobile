@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<title>eSkrb — design</title>
+<link rel="stylesheet" href="kit/device.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=block">
+<style>
+  :root{
+    --ground:#1652C4;          /* saturated blue */
+    --ink:#FFFFFF;
+    --ink2:#D9E6FF;            /* secondary text on blue */
+    --tonal:rgba(255,255,255,.14);
+    --today:#FFD45C;           /* today on the day ring, unread dot */
+    --sheet:#FFFFFF;
+    --sheet-ink:#0C2145;
+    --sheet-ink2:#3B5683;
+    --sheet-fill:#EBF1FD;
+    --reviewed:#0F7A5C;        /* "Pregledano" on white */
+    --heat-low:#FFF3E8;        /* pain scale, owned by pain only */
+    --heat-mid:#FFB48C;
+    --heat-high:#FF6A55;
+    --urgent:#B3121A;
+  }
+  .label{flex-basis:100%;font:700 28px/1.2 var(--sf);color:#222;margin:24px 0 -24px}
+  .label small{display:block;font:400 17px/1.4 var(--sf);color:#555;margin-top:4px;max-width:900px}
+  .wrap{position:absolute;inset:0;display:flex;flex-direction:column;padding:calc(var(--safe-top) + 8px) 24px calc(var(--safe-bottom) + 16px)}
+  .grow{flex:1}
+  svg.i{width:26px;height:26px;flex:none;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .row{display:flex;align-items:center;gap:12px}
+
+  .E{background:radial-gradient(130% 55% at 50% 0%,rgba(255,255,255,.10) 0%,transparent 70%),var(--ground);color:var(--ink)}
+  .E *{font-family:Lexend,var(--gsf)}
+  .E.heat{background:radial-gradient(120% 45% at 50% 108%,var(--wash) 0%,transparent 70%),radial-gradient(130% 55% at 50% 0%,rgba(255,255,255,.10) 0%,transparent 70%),var(--ground)}
+  .E .date{font-weight:400;font-size:20px;line-height:1.3;color:var(--ink2);margin-top:16px}
+  .E .day{font-weight:600;font-size:34px;line-height:1.1;margin-top:6px;letter-spacing:-.01em}
+  .E .top{display:flex;align-items:center;justify-content:space-between;min-height:56px;font-weight:500;font-size:20px}
+  .E h1{font-weight:600;font-size:34px;line-height:1.15;letter-spacing:-.015em;margin:20px 0 8px}
+  .E .hint{font-weight:400;font-size:20px;line-height:1.4;color:var(--ink2)}
+  .E .meta{font-weight:400;font-size:18px;line-height:1.35;color:var(--ink2)}
+  .E .quote{font-weight:400;font-size:24px;line-height:1.4;margin-top:10px}
+  .E .pill{display:flex;align-items:center;justify-content:center;gap:12px;min-height:68px;border-radius:34px;font-weight:500;font-size:21px;box-shadow:inset 0 0 0 2.5px rgba(255,255,255,.85)}
+  .E .solid{background:#fff;color:var(--ground);box-shadow:none;font-weight:600}
+  .E .tonal{background:var(--tonal);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),0 12px 30px -16px rgba(0,0,0,.5)}
+  .E .orb{border-radius:50%;color:var(--ground);margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;background:radial-gradient(120% 100% at 50% 0%,#FFFFFF 0%,#F6F4F1 70%,#EAE6E2 100%)}
+  .E .orb b{font-weight:600;font-size:32px;line-height:1.1;letter-spacing:-.01em}
+  .E .orb span{font-weight:400;font-size:18px;line-height:1.3;color:var(--sheet-ink2)}
+  .E .ava{width:48px;height:48px;border-radius:50%;background:linear-gradient(160deg,#F6D9BE,#E2B48C);color:#4A2A12;display:grid;place-items:center;font-weight:700;font-size:18px;flex:none}
+  .E .udot{width:12px;height:12px;border-radius:50%;background:var(--today);flex:none}
+
+  /* home: message row + ring */
+  .E .msgrow{display:flex;align-items:center;gap:14px;min-height:76px;padding:0 16px 0 14px;border-radius:38px;margin-top:22px}
+  .E .msgrow b{display:block;font-weight:600;font-size:20px;line-height:1.25}
+  .E .msgrow span{font-weight:400;font-size:17px;color:var(--ink2)}
+  .E .ringwrap{position:relative;width:340px;height:340px;margin:0 auto}
+  .E .ringwrap svg{position:absolute;inset:0}
+  .E .ringwrap .orb{position:absolute;left:50%;top:50%;width:236px;height:236px;margin:-118px 0 0 -118px;box-shadow:0 30px 60px -24px rgba(0,0,0,.6),inset 0 -6px 12px rgba(11,74,82,.12),inset 0 2px 0 #fff}
+  .E .ringcap{text-align:center;font-weight:400;font-size:18px;color:var(--ink2);margin-top:4px}
+
+  /* pain slider (E3 wedge) */
+  .E .val{display:flex;align-items:flex-end;gap:16px}
+  .E .val b{font-weight:600;font-size:184px;line-height:.8;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+  .E .val small{display:block;font-weight:400;font-size:20px;line-height:1.3;color:var(--ink2);padding-bottom:18px}
+  .E .heatpill{display:inline-flex;align-items:center;gap:8px;padding:8px 16px 8px 12px;border-radius:20px;background:var(--heat);color:#14262A;font-weight:600;font-size:20px;margin-bottom:8px}
+  .E .heatpill i{width:10px;height:10px;border-radius:50%;background:#14262A}
+  .E .sl{--t:84px;position:relative;height:var(--t);margin-top:28px}
+  .E .sl .track,.E .sl .fill{position:absolute;left:0;right:0;top:50%;height:56px;margin-top:-28px;clip-path:polygon(0 40%,100% 0,100% 100%,0 60%)}
+  .E .sl .track{background:rgba(255,255,255,.16)}
+  .E .sl .fill{background:linear-gradient(90deg,var(--heat-low),var(--heat));-webkit-mask:linear-gradient(90deg,#000 calc(var(--v) / 10 * (100% - 84px) + 42px),transparent 0)}
+  .E .sl .thumb{position:absolute;top:0;left:calc(var(--v) / 10 * (100% - var(--t)));width:var(--t);height:var(--t);border-radius:50%;display:grid;place-items:center;background:radial-gradient(120% 100% at 50% 0%,#fff,#F1EEEA);box-shadow:0 0 0 8px rgba(255,255,255,.14),0 18px 30px -10px rgba(0,0,0,.55),inset 0 -3px 6px rgba(11,74,82,.12);color:var(--heatInk);font-weight:700;font-size:34px;letter-spacing:-.02em}
+  .E .nums{display:flex;justify-content:space-between;padding:0 33px;margin-top:14px;font-weight:500;font-size:18px;color:var(--ink2)}
+  .E .nums span{width:18px;text-align:center}
+  .E .nums .on{color:#fff;font-weight:700}
+
+  /* voice note (E2) */
+  .E .card{background:#fff;color:var(--sheet-ink);border-radius:28px;padding:22px 24px}
+  .E .card .meta{color:var(--sheet-ink2)}
+  .E .halo{box-shadow:0 0 0 14px rgba(255,255,255,.12),0 30px 50px -20px rgba(0,0,0,.5)}
+
+  /* urgent and rings (E3) */
+  .screen.E.urgent{background:radial-gradient(130% 60% at 50% 0%,#D8262E,transparent 70%),linear-gradient(180deg,#C0151D,#860A10)}
+  .E .rings{position:relative;width:300px;height:300px;margin:0 auto;display:grid;place-items:center}
+  .E .rings::before,.E .rings::after{content:"";position:absolute;border-radius:50%;border:2px solid rgba(255,255,255,.28)}
+  .E .rings::before{inset:0}
+  .E .rings::after{inset:26px;border-color:rgba(255,255,255,.45)}
+
+  /* sheets: timeline + message */
+  .E .sheet{background:var(--sheet);color:var(--sheet-ink);border-radius:32px 32px 0 0;margin:0 -24px calc(-1 * var(--safe-bottom) - 16px);padding:8px 24px calc(var(--safe-bottom) + 16px);flex:1;display:flex;flex-direction:column}
+  .E .sheet .meta{color:var(--sheet-ink2)}
+  .E .ev{padding:18px 0;border-bottom:1.5px solid #E2EAF7}
+  .E .ev h3{margin:0;font-weight:600;font-size:21px;line-height:1.3}
+  .E .ok{display:inline-flex;align-items:center;gap:6px;font-weight:500;font-size:18px;color:var(--reviewed);margin-top:4px}
+  .E .chip{display:inline-block;padding:4px 12px;border-radius:14px;font-weight:600;font-size:16px;background:#FFE4D3;color:#7A2E0F;margin-left:8px;vertical-align:2px}
+  .E .reply{display:flex;gap:12px;align-items:center;margin-top:auto;padding-top:12px}
+  .E .reply .in{flex:1;height:64px;border-radius:32px;background:var(--sheet-fill);display:flex;align-items:center;padding:0 22px;font-weight:400;font-size:20px;color:var(--sheet-ink2)}
+  .E .reply .go{width:64px;height:64px;border-radius:50%;background:var(--ground);color:#fff;display:grid;place-items:center;flex:none}
+  .E .letter{font-weight:400;font-size:26px;line-height:1.45;margin:14px 0 0}
+  .E .ref{display:flex;align-items:center;gap:14px;padding:18px 0;border-top:1.5px solid #E2EAF7;border-bottom:1.5px solid #E2EAF7;margin-top:24px}
+  .E .thumbimg{width:64px;height:64px;border-radius:14px;background:linear-gradient(160deg,#E8C3AA,#D9A98C);position:relative;flex:none;overflow:hidden}
+  .E .thumbimg::after{content:"";position:absolute;left:27px;top:6px;width:10px;height:52px;border-radius:5px;background:#F4EEE6;box-shadow:inset 0 0 0 2px #E0D6CA}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+  <symbol id="cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="send" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></symbol>
+</svg>
+
+<div class="label">eSkrb <small>Home with the 42-day ring and the nurse's message, wedge slider for pain, note (typed or dictated), 112, notes and the message view. Saturated blue ground; peach and coral belong to the pain scale only.</small></div>
+
+<!-- 1 HOME -->
+<section class="screen E" data-os="android" data-name="home" data-kind="core" data-pair="home" data-time="9:12" data-chrome="light">
+  <div class="wrap">
+    <div class="date">Sobota, 21. november</div>
+    <div class="day">Dan 4 od 42</div>
+    <div class="msgrow tonal"><div class="ava">PŽ</div><div class="grow"><b data-proper>Sestra Petra</b><span>Vam je pisala ob 10.14</span></div><i class="udot"></i><svg class="i"><use href="#chev"/></svg></div>
+    <div class="grow"></div>
+    <div class="ringwrap"><svg viewBox="0 0 340 340" data-ring="4"></svg><div class="orb" data-cta><b>Začni<br>pregled</b><span>okoli 2 minuti</span></div></div>
+    <div class="ringcap">Vsaka pika je en dan okrevanja.</div>
+    <div class="grow"></div>
+    <div class="pill tonal"><svg class="i"><use href="#mic"/></svg>Dodaj zapis</div>
+  </div>
+</section>
+
+<section class="screen E" data-name="home-ios" data-kind="core" data-pair="home" data-time="9:12" data-chrome="light">
+  <div class="wrap">
+    <div class="date">Sobota, 21. november</div>
+    <div class="day">Dan 4 od 42</div>
+    <div class="msgrow tonal"><div class="ava">PŽ</div><div class="grow"><b data-proper>Sestra Petra</b><span>Vam je pisala ob 10.14</span></div><i class="udot"></i><svg class="i"><use href="#chev"/></svg></div>
+    <div class="grow"></div>
+    <div class="ringwrap"><svg viewBox="0 0 340 340" data-ring="4"></svg><div class="orb" data-cta><b>Začni<br>pregled</b><span>okoli 2 minuti</span></div></div>
+    <div class="ringcap">Vsaka pika je en dan okrevanja.</div>
+    <div class="grow"></div>
+    <div class="pill tonal"><svg class="i"><use href="#mic"/></svg>Dodaj zapis</div>
+  </div>
+</section>
+
+<!-- 2 MESSAGE VIEW (new) -->
+<section class="screen E" data-os="android" data-name="message" data-kind="detail" data-time="10:20" data-chrome="light" data-home="dark">
+  <div class="wrap">
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span></div>
+    <div class="row" style="gap:16px;margin:12px 0 24px"><div class="ava" style="width:64px;height:64px;font-size:22px">PŽ</div><div><div class="day" data-proper style="margin:0;font-size:28px">Sestra Petra Žagar</div><div class="meta">Ortopedija · danes ob 10.14</div></div></div>
+    <div class="sheet">
+      <p class="letter" data-ugc>Fotografija je jasna, rana lepo celi. Jutri zjutraj nam sporočite še temperaturo.</p>
+      <div class="ref"><div class="thumbimg"></div><div class="grow"><div style="font-weight:600;font-size:20px">Fotografija rane</div><div class="meta">Včeraj ob 18.40</div><div class="ok"><svg class="i" style="width:20px;height:20px"><use href="#check"/></svg>Pregledano</div></div></div>
+      <div class="reply"><div class="in">Odgovorite sestri Petri</div><div class="go"><svg class="i"><use href="#send"/></svg></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 PAIN (E3 wedge) -->
+<section class="screen E heat" data-os="android" data-name="pain" data-kind="create" data-time="9:13" data-chrome="light" style="--wash:rgba(255,150,110,.40)">
+  <div class="wrap">
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span><span>3 od 8</span></div>
+    <h1>Kako močna je bolečina v kolenu?</h1>
+    <div class="hint">Povlecite krog levo ali desno.</div>
+    <div class="grow"></div>
+    <div style="--heat:var(--heat-mid)"><span class="heatpill"><i></i>Zmerna</span></div>
+    <div class="val"><b>4</b><small>Boli, a jo<br>prenesete.</small></div>
+    <div class="sl" style="--v:4;--heat:var(--heat-mid);--heatInk:#B84A1E" role="slider" aria-valuemin="0" aria-valuemax="10" aria-valuenow="4"><div class="track"></div><div class="fill"></div><div class="thumb">4</div></div>
+    <div class="nums"><span>0</span><span>1</span><span>2</span><span>3</span><span class="on">4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+    <div style="height:36px"></div>
+    <div class="pill solid" data-cta>Naprej</div>
+  </div>
+</section>
+
+<section class="screen E heat" data-os="android" data-name="pain-high" data-kind="state" data-time="9:13" data-chrome="light" style="--wash:rgba(255,95,75,.52)">
+  <div class="wrap">
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span><span>3 od 8</span></div>
+    <h1>Kako močna je bolečina v kolenu?</h1>
+    <div class="hint">Povlecite krog levo ali desno.</div>
+    <div class="grow"></div>
+    <div style="--heat:#FF8A72"><span class="heatpill"><i></i>Močna</span></div>
+    <div class="val"><b>8</b><small>Težko mislite<br>na kaj drugega.</small></div>
+    <div class="sl" style="--v:8;--heat:var(--heat-high);--heatInk:#B3121A" role="slider" aria-valuemin="0" aria-valuemax="10" aria-valuenow="8"><div class="track"></div><div class="fill"></div><div class="thumb">8</div></div>
+    <div class="nums"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span class="on">8</span><span>9</span><span>10</span></div>
+    <div style="height:36px"></div>
+    <div class="pill solid" data-cta>Naprej</div>
+  </div>
+</section>
+
+<!-- 4 VOICE NOTE (E2) -->
+<section class="screen E" data-os="android" data-name="voice" data-kind="create" data-time="9:20" data-chrome="light">
+  <div class="wrap">
+    <div class="top"><span class="row"><svg class="i"><use href="#close"/></svg>Zapri</span></div>
+    <div class="card" style="margin-top:12px;min-height:200px;box-shadow:inset 0 0 0 3px #FFD45C"><div class="meta">Narekovano. Besedilo lahko popravite.</div><div class="quote" data-ugc>Od jutra me boli leva meča in je bolj trda kot včeraj.<span style="display:inline-block;width:3px;height:28px;background:var(--ground);vertical-align:-5px;margin-left:2px"></span></div></div>
+    <div class="grow"></div>
+    <div class="rings"><div class="orb" style="width:200px;height:200px;box-shadow:0 30px 60px -24px rgba(0,0,0,.6),inset 0 -6px 12px rgba(11,74,82,.12),inset 0 2px 0 #fff"><svg class="i" style="width:56px;height:56px"><use href="#mic"/></svg><span>Narekuj</span></div></div>
+    <div class="grow"></div>
+    <div class="pill tonal"><svg class="i"><use href="#cam"/></svg>Dodaj fotografijo</div>
+    <div class="pill solid" style="margin-top:12px" data-cta>Pošlji</div>
+  </div>
+</section>
+
+<!-- 5 URGENT (E3) -->
+<section class="screen E urgent" data-os="android" data-name="urgent" data-kind="state" data-time="9:21" data-chrome="light">
+  <div class="wrap">
+    <div style="font-weight:600;font-size:52px;line-height:1.02;letter-spacing:-.025em;margin-top:28px">Pokličite 112.</div>
+    <p style="font-weight:400;font-size:22px;line-height:1.4;margin:16px 0 0">Bolečina in trdota v meči sta lahko znak krvnega strdka.</p>
+    <div class="grow"></div>
+    <div class="rings" style="width:320px;height:320px"><div class="orb" data-cta style="width:220px;height:220px;color:var(--urgent);background:radial-gradient(120% 100% at 50% 0%,#fff,#FBECEC);box-shadow:0 30px 60px -20px rgba(0,0,0,.6)"><svg class="i" style="width:44px;height:44px"><use href="#phone"/></svg><b style="font-size:60px">112</b></div></div>
+    <div class="grow"></div>
+    <p style="font-weight:400;font-size:19px;line-height:1.4;text-align:center;margin:0">Vaša ekipa na ortopediji je že obveščena.</p>
+  </div>
+</section>
+
+<!-- 6 NOTES / TIMELINE (E3) -->
+<section class="screen E" data-os="android" data-name="notes" data-kind="list" data-time="10:31" data-chrome="light" data-home="dark">
+  <div class="wrap">
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span></div>
+    <div class="day" style="margin:8px 0 6px">Zapisi</div>
+    <svg viewBox="0 0 364 64" width="100%" height="64" style="margin-bottom:16px" data-spark></svg>
+    <div class="sheet">
+      <div data-scrolls style="overflow:hidden">
+        <div class="ev"><div class="row" style="gap:10px"><div class="ava" style="width:32px;height:32px;font-size:13px">PŽ</div><div class="meta">Sestra Petra Žagar · danes 10.14</div></div><p data-ugc style="font-size:21px;line-height:1.4;margin:8px 0 0">Fotografija je jasna, rana lepo celi. Jutri zjutraj nam sporočite še temperaturo.</p></div>
+        <div class="ev"><h3>Fotografija rane</h3><div class="meta">Včeraj ob 18.40</div><div class="ok"><svg class="i" style="width:20px;height:20px"><use href="#check"/></svg>Pregledano</div></div>
+        <div class="ev"><h3>Dnevni pregled <span class="chip">bolečina 5</span></h3><div class="meta">Včeraj ob 9.02 · 37,4 °C</div><div class="ok"><svg class="i" style="width:20px;height:20px"><use href="#check"/></svg>Pregledano</div></div>
+        <div class="ev"><h3>Zapis</h3><div class="meta" data-ugc>»Ponoči sem slabo spala, koleno je peklo.«</div><div class="ok"><svg class="i" style="width:20px;height:20px"><use href="#check"/></svg>Pregledano</div></div>
+      </div>
+      <div class="reply"><div class="in">Odgovorite sestri Petri</div><div class="go"><svg class="i"><use href="#send"/></svg></div></div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+document.querySelectorAll('svg[data-ring]').forEach(svg=>{
+  const today=+svg.dataset.ring, ns='http://www.w3.org/2000/svg';
+  for(let i=0;i<42;i++){
+    const a=-Math.PI/2+i*2*Math.PI/42, r=156, c=document.createElementNS(ns,'circle');
+    c.setAttribute('cx',170+r*Math.cos(a)); c.setAttribute('cy',170+r*Math.sin(a));
+    if(i<today-1){c.setAttribute('r',6);c.setAttribute('fill','#fff')}
+    else if(i===today-1){c.setAttribute('r',9);c.setAttribute('fill','#FFD45C');c.setAttribute('stroke',getComputedStyle(svg.closest('.screen')).getPropertyValue('--ground').trim());c.setAttribute('stroke-width',3)}
+    else {c.setAttribute('r',4);c.setAttribute('fill','rgba(255,255,255,.3)')}
+    svg.appendChild(c);
+  }
+});
+document.querySelectorAll('svg[data-spark]').forEach(svg=>{
+  const ns='http://www.w3.org/2000/svg', vals=[7,6,5];
+  const heat=v=>v>=7?'#FF8A5C':v>=6?'#FFA37A':'#FFB48C';
+  vals.forEach((v,i)=>{const r=document.createElementNS(ns,'rect');const h=6+v*5;r.setAttribute('x',i*30);r.setAttribute('y',58-h);r.setAttribute('width',20);r.setAttribute('height',h);r.setAttribute('rx',6);r.setAttribute('fill',heat(v));svg.appendChild(r)});
+  const r=document.createElementNS(ns,'rect');r.setAttribute('x',90);r.setAttribute('y',30);r.setAttribute('width',20);r.setAttribute('height',28);r.setAttribute('rx',6);r.setAttribute('fill','none');r.setAttribute('stroke','rgba(255,255,255,.55)');r.setAttribute('stroke-width',2);r.setAttribute('stroke-dasharray','4 4');svg.appendChild(r);
+  const t=document.createElementNS(ns,'text');t.setAttribute('x',126);t.setAttribute('y',46);t.setAttribute('fill','#CFE7E6');t.setAttribute('font-size',18);t.setAttribute('font-family','Lexend');t.textContent='Bolečina pada: 7, 6, 5.';svg.appendChild(t);
+});
+</script>
+<script src="kit/device.js"></script>
+</body>
+</html>

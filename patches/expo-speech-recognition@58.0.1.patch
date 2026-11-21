@@ -1,0 +1,38 @@
+diff --git a/ios/ExpoSpeechRecognitionModule.swift b/ios/ExpoSpeechRecognitionModule.swift
+index 9dc90826634fe3424c0c143eb7cfd72efe90498a..f82187f966d909f4e28151187c16de44a9f2f83f 100644
+--- a/ios/ExpoSpeechRecognitionModule.swift
++++ b/ios/ExpoSpeechRecognitionModule.swift
+@@ -354,6 +354,15 @@ public class ExpoSpeechRecognitionModule: Module {
+       return recognizer?.supportsOnDeviceRecognition ?? false
+     }
+ 
++    // eSkrb patch: on-device support for a specific locale (upstream only checks the default locale).
++    Function("supportsOnDeviceRecognitionForLocale") { (localeIdentifier: String) -> Bool in
++      let normalized = localeIdentifier.replacingOccurrences(of: "_", with: "-")
++      guard let recognizer = SFSpeechRecognizer(locale: Locale(identifier: normalized)) else {
++        return false
++      }
++      return recognizer.supportsOnDeviceRecognition
++    }
++
+     Function("supportsRecording") { () -> Bool in
+       return true
+     }
+diff --git a/ios/ExpoSpeechRecognizer.swift b/ios/ExpoSpeechRecognizer.swift
+index b27842501f72e1a5a9382636397cbef30d5a2b30..c41a8ed971c421638a82a13f2006d104fa368e1d 100644
+--- a/ios/ExpoSpeechRecognizer.swift
++++ b/ios/ExpoSpeechRecognizer.swift
+@@ -585,9 +585,10 @@ actor ExpoSpeechRecognizer: ObservableObject {
+     // These won't get emitted to the user, however
+     request.shouldReportPartialResults = options.interimResults || !options.continuous
+ 
+-    if recognizer.supportsOnDeviceRecognition {
+-      request.requiresOnDeviceRecognition = options.requiresOnDeviceRecognition
+-    }
++    // eSkrb patch: always honour requiresOnDeviceRecognition. Upstream only set it when the
++    // recognizer supports on-device recognition, silently falling back to Apple's servers otherwise.
++    // Setting it unconditionally makes recognition fail instead of sending audio off the device.
++    request.requiresOnDeviceRecognition = options.requiresOnDeviceRecognition
+ 
+     if let taskHint = options.iosTaskHint {
+       request.taskHint = taskHint.sfSpeechRecognitionTaskHint

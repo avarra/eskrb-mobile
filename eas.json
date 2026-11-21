@@ -1,0 +1,36 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "DISABLE_V8_COMPILE_CACHE": "1"
+      }
+    },
+    "ios-simulator": {
+      "extends": "development",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "DISABLE_V8_COMPILE_CACHE": "1"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "DISABLE_V8_COMPILE_CACHE": "1"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

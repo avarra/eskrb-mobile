@@ -1,0 +1,285 @@
+{
+  "surfaces": [
+    {
+      "name": "home",
+      "type": "screen",
+      "fails": [],
+      "warns": [
+        "Three saturated hue families (24°, 48°, 216°). Is each one earning its place?"
+      ],
+      "facts": {
+        "os": "android",
+        "kind": "core",
+        "fonts": {
+          "Lexend": 9
+        },
+        "sizes": [
+          34,
+          32,
+          21,
+          20,
+          18,
+          17
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 2,
+        "words": 28,
+        "headline": "34px, 4 words, 1 line(s)",
+        "accentHues": [
+          24,
+          48,
+          216
+        ],
+        "cards": 3
+      }
+    },
+    {
+      "name": "home-ios",
+      "type": "screen",
+      "fails": [],
+      "warns": [
+        "Three saturated hue families (24°, 48°, 216°). Is each one earning its place?"
+      ],
+      "facts": {
+        "os": "ios",
+        "kind": "core",
+        "fonts": {
+          "Lexend": 9
+        },
+        "sizes": [
+          34,
+          32,
+          21,
+          20,
+          18,
+          17
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 2,
+        "words": 28,
+        "headline": "34px, 4 words, 1 line(s)",
+        "accentHues": [
+          24,
+          48,
+          216
+        ],
+        "cards": 3
+      }
+    },
+    {
+      "name": "message",
+      "type": "screen",
+      "fails": [],
+      "warns": [
+        "Three saturated hue families (24°, 216°, 168°). Is each one earning its place?"
+      ],
+      "facts": {
+        "os": "android",
+        "kind": "detail",
+        "fonts": {
+          "Lexend": 9
+        },
+        "sizes": [
+          28,
+          26,
+          22,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 3,
+        "words": 18,
+        "headline": "28px, 3 words, 1 line(s)",
+        "accentHues": [
+          24,
+          216,
+          168
+        ],
+        "cards": 2
+      }
+    },
+    {
+      "name": "pain",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "create",
+        "fonts": {
+          "Lexend": 20
+        },
+        "sizes": [
+          184,
+          34,
+          21,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 1,
+        "words": 34,
+        "headline": "184px, 1 words, 1 line(s)",
+        "accentHues": [
+          24,
+          216
+        ],
+        "cards": 1
+      }
+    },
+    {
+      "name": "pain-high",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "state",
+        "fonts": {
+          "Lexend": 20
+        },
+        "sizes": [
+          184,
+          34,
+          21,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 1,
+        "words": 35,
+        "headline": "184px, 1 words, 1 line(s)",
+        "accentHues": [
+          0,
+          216
+        ],
+        "cards": 1
+      }
+    },
+    {
+      "name": "voice",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "create",
+        "fonts": {
+          "Lexend": 6
+        },
+        "sizes": [
+          24,
+          21,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600"
+        ],
+        "leftEdges": 2,
+        "words": 9,
+        "headline": "21px, 2 words, 1 line(s)",
+        "accentHues": [
+          216
+        ],
+        "cards": 4
+      }
+    },
+    {
+      "name": "urgent",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "state",
+        "fonts": {
+          "Lexend": 4
+        },
+        "sizes": [
+          60,
+          52,
+          22,
+          19
+        ],
+        "weights": [
+          "400",
+          "600"
+        ],
+        "leftEdges": 1,
+        "words": 20,
+        "headline": "60px, 1 words, 1 line(s)",
+        "accentHues": [
+          0
+        ],
+        "cards": 1
+      }
+    },
+    {
+      "name": "notes",
+      "type": "screen",
+      "fails": [],
+      "warns": [
+        "Three saturated hue families (24°, 216°, 168°). Is each one earning its place?"
+      ],
+      "facts": {
+        "os": "android",
+        "kind": "list",
+        "fonts": {
+          "Lexend": 17
+        },
+        "sizes": [
+          34,
+          21,
+          20,
+          18,
+          16,
+          13
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 2,
+        "words": 34,
+        "headline": "34px, 1 words, 1 line(s)",
+        "accentHues": [
+          24,
+          216,
+          168
+        ],
+        "cards": 2
+      }
+    }
+  ],
+  "exports": []
+}

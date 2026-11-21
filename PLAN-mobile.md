@@ -9,7 +9,8 @@ Everything here serves that loop for one scenario, knee replacement. Features ou
 - Mobile is Expo with TypeScript. Backend stack is the backend dev's choice; the contract is plain REST and JSON.
 - Auth with OpenID via expo-auth-session.
 - All patient-facing copy is Slovenian from the start. Code, field names and the dashboard can be English.
-- Audio and photos upload to the API. The backend calls Soniox and the LLM, so no API keys live on the phone.
+- No audio is uploaded or stored anywhere. Speech becomes text on the phone, the patient edits it, and only the text is sent. Photos upload to the API. The backend calls the LLM, so no API keys live on the phone.
+- Speech to text in this round is on-device dictation. Soniox comes later (`PLAN-next.md`).
 - Both sides build against the contract in parallel. Mobile uses fixture JSON until the API is up.
 - Camera work is handled by VisionCamera V5 (react-native-vision-camera)
 
@@ -23,7 +24,7 @@ Everything here serves that loop for one scenario, knee replacement. Features ou
 | Protocol | id, name, durationDays, questions[], rules[] | Stored as JSON, one seeded: knee replacement |
 | Episode | id, patientId, protocolId, startDate, endDate | One recovery period for one patient |
 | CheckIn | id, episodeId, date, answers{}, authoredBy, reviewedAt, reviewedBy | answers is keyed by question id |
-| Log | id, episodeId, type (text, voice, photo), text, transcript, mediaUrl, extracted{}, authoredBy, reviewedAt | extracted uses the same keys as check-in answers |
+| Log | id, episodeId, type (text, photo), source (typed, dictated), text, mediaUrl, extracted{}, authoredBy, reviewedAt | text is what the patient confirmed. mediaUrl is for photos only. extracted uses the same keys as check-in answers |
 | Flag | id, episodeId, sourceType, sourceId, ruleId, severity (attention, urgent), quote, resolvedAt | quote is the patient's own words or the answer that triggered it |
 | Message | id, episodeId, fromUserId, body, createdAt | Staff to patient and back |
 
@@ -64,7 +65,7 @@ The questions and thresholds are placeholders to make the loop testable. A clini
 | POST /auth/demo-login | both | token for a seeded user id |
 | GET /me/episode | mobile | episode, protocol, day number, whether today's check-in is done |
 | POST /episodes/:id/checkins | mobile | saved check-in, flags[], patientAction |
-| POST /episodes/:id/logs (multipart) | mobile | saved log with transcript, flags[], patientAction |
+| POST /episodes/:id/logs | mobile | JSON for text logs, multipart for a photo (no audio accepted). Returns the saved log, flags[] and patientAction |
 | GET /episodes/:id/timeline | mobile | check-ins, logs and messages, newest first, with reviewed status |
 | POST /episodes/:id/messages | both | saved message |
 | GET /staff/triage | dashboard | episodes grouped into the four columns |
@@ -89,7 +90,7 @@ Build in this order. Each step leaves the app runnable.
 3. **Home.** Shows "Dan 4 od 42", one large button for the daily check-in, a secondary button for adding a note, and whether today's check-in is done.
 4. **Daily check-in.** One question per screen, rendered from the protocol JSON by question type (scale, number, choice, boolean). Large controls, a back button, a progress indicator. Submit at the end.
 5. **Result screen.** Driven by `patientAction`. `none` shows a thank-you. `contact_team` says the team has been notified and offers a call button. `call_112` shows a full-screen urgent prompt with a `tel:` link.
-6. **Quick log.** Three inputs on one screen: typed text, a voice recording that uploads as audio, and a photo from the camera or library. Show the returned transcript after a voice upload. Same result screen as the check-in.
+6. **Quick log.** One editable text field the patient can type into or dictate into (on-device speech to text; the audio is never saved or sent), plus a photo from the camera or library. The patient can edit the text before sending. Same result screen as the check-in.
 7. **Timeline.** Past check-ins, logs and staff messages, newest first. Each entry shows a "Pregledano" badge once staff reviewed it. A reply box at the bottom posts a message.
 8. **Daily reminder.** Local notification at a fixed hour that opens the check-in. Show it in the foreground too. Add a hidden button that fires it in 10 seconds.
 9. **Copy and size pass.** All strings in Slovenian, large type, high contrast, nothing smaller than a thumb.
@@ -105,7 +106,7 @@ Run this script together once both sides are up. If every step works, the MVP is
 - [ ] Log in on the phone as the stable seeded patient. Home shows the right day number.
 - [ ] Trigger the reminder with the debug button. Tapping it opens the check-in.
 - [ ] Submit a normal check-in. The phone shows the thank-you, and the patient sits in Stable on the dashboard.
-- [ ] Record a voice note in Slovenian saying the calf hurts. The transcript comes back and the phone shows the urgent screen.
+- [ ] Dictate a note in Slovenian saying the calf hurts, correct the text, and send it. The phone shows the urgent screen, and no audio reaches the server.
 - [ ] The patient moves to Needs attention, with the flag and the quoted sentence on the card and profile.
 - [ ] Add a wound photo. It appears in the profile timeline.
 - [ ] On the dashboard, send a message and mark the items reviewed. The patient moves to Awaiting patient reply.
@@ -115,11 +116,11 @@ Run this script together once both sides are up. If every step works, the MVP is
 ## Covered by this plan
 
 - Daily structured check-in, driven by a per-procedure protocol
-- Extra logs: text, voice with Slovenian transcription, and photos
+- Extra logs: text (typed or dictated on the device and edited before sending) and photos
 - Wellbeing as one slider question inside the check-in
 - Daily reminder notification that opens the check-in
 - Deterministic red-flag rules per procedure
-- AI extraction from free text and voice into structured fields, with source quotes
+- AI extraction from the note text into structured fields, with source quotes
 - AI summary on the patient profile
 - Urgent and contact-team prompts on the phone
 - Triage queue with four columns, including missed check-ins
@@ -131,27 +132,4 @@ Run this script together once both sides are up. If every step works, the MVP is
 
 ## Still to do after this plan
 
-### Mobile
-
-- Conversational voice check-in
-- HealthKit data from the phone
-- Consent toggles per data type and per procedure
-- Recovery-relevant wellbeing tags after the slider
-- Medication tracking with reminders
-- Questions and doubts, answered from discharge instructions or routed to staff
-- Wound photo timeline as a side-by-side view
-- Alarm-style reminder for patients who opt in
-
-### Caretakers (mobile side)
-
-- Proxy and observer modes
-- Joining by QR or invite code
-- Patient switcher and proxy-worded questions
-- Notifications when the patient misses a check-in or raises a flag
-
-### Pitch (shared)
-
-- Clinical check of the questions and thresholds
-- Demo storyline and the seed data that tells it
-- Roadmap slide: SI-PASS login and eZdravje integration
-- Slides on staff time saved, human in the loop, and privacy
+Moved to `PLAN-next.md`, together with the Soniox speech-to-text plan.
