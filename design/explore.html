@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<title>eSkrb — three directions</title>
+<link rel="stylesheet" href="kit/device.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=block">
+<style>
+  .label{flex-basis:100%;font:700 28px/1.2 var(--sf);color:#222;margin:24px 0 -24px}
+  .label small{display:block;font:400 17px/1.4 var(--sf);color:#555;margin-top:4px}
+  .wrap{position:absolute;inset:0;display:flex;flex-direction:column;padding:calc(var(--safe-top) + 4px) 20px 0}
+  .grow{flex:1}
+  svg.i{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .ms{font-size:26px}
+  .row{display:flex;align-items:center;gap:12px}
+
+  /* ================= A · TRAIL ================= */
+  .A{--g:#F4F6F2;--ink:#161A17;--ink2:#4A534C;--red:#CE2A1E;--red2:#A91E14;--ridge1:#DCE4DA;--ridge2:#C3D1C4;--line:rgba(22,26,23,.1);--surf:#FFFFFF;
+     background:var(--g);color:var(--ink);font-family:var(--gsf)}
+  .A .disp{font-family:Archivo,var(--sf);font-stretch:125%;font-weight:800;letter-spacing:-.02em}
+  .A .date{font:500 18px/1.3 var(--gsf);color:var(--ink2);margin-top:12px}
+  .A .day{display:flex;align-items:baseline;gap:12px;margin-top:4px}
+  .A .day b{font-size:76px;line-height:.95;white-space:nowrap}
+  .A .day span{white-space:nowrap;font:700 24px/1 Archivo;font-stretch:125%;color:var(--ink2)}
+  .A .trail{margin:6px -20px 0;flex:1;min-height:180px;width:calc(100% + 40px)}
+  .A .btn{display:flex;align-items:center;justify-content:center;gap:12px;border-radius:20px;min-height:64px;font:700 20px/1.2 var(--gsf);text-align:center}
+  .A .primary{background:linear-gradient(180deg,#D8321F,var(--red));color:#fff;flex-direction:column;gap:2px;padding:14px;box-shadow:0 10px 22px -12px rgba(169,30,20,.7)}
+  .A .primary small{font:500 16px/1.2 var(--gsf);opacity:.9}
+  .A .secondary{background:var(--surf);color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink);margin-top:12px}
+  .A .msg{display:flex;align-items:center;gap:14px;padding:16px 0;border-top:1px solid var(--line);margin-top:22px;font:500 18px/1.3 var(--gsf)}
+  .A .dot{width:12px;height:12px;border-radius:50%;background:var(--red);flex:none}
+  .A .ava{width:44px;height:44px;border-radius:50%;background:#2F5D46;color:#fff;display:grid;place-items:center;font:700 18px var(--gsf);flex:none}
+  .A .nav{display:flex;background:#E7ECE6;padding:12px 0 calc(var(--safe-bottom) + 8px);margin:0 -20px}
+  .A .nav div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font:600 14px var(--gsf);color:var(--ink2)}
+  .A .nav .pill{width:64px;height:32px;border-radius:16px;display:grid;place-items:center}
+  .A .nav .on{color:var(--ink)} .A .nav .on .pill{background:#C9D8C9}
+  .A .top{display:flex;align-items:center;gap:12px;height:56px;font:600 18px var(--gsf)}
+  .A .blazes{display:flex;gap:8px;margin-left:auto}
+  .A .bz{width:16px;height:16px;border-radius:50%;border:3px solid var(--ridge2)}
+  .A .bz.d{border-color:var(--red);background:#fff}
+  .A .bz.c{border-color:var(--red);background:#fff;transform:scale(1.35)}
+  .A h1{font-size:34px;line-height:1.08;margin:26px 0 8px}
+  .A .hint{font:400 18px/1.4 var(--gsf);color:var(--ink2)}
+  .A .scale{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:30px}
+  .A .scale div{height:58px;border-radius:16px;background:var(--surf);display:grid;place-items:center;font:700 24px Archivo;font-stretch:110%;box-shadow:0 1px 1px rgba(22,26,23,.06),0 6px 14px -8px rgba(22,26,23,.2)}
+  .A .scale .sel{background:var(--red);color:#fff;transform:scale(1.08)}
+  .A .ends{display:flex;justify-content:space-between;font:500 16px var(--gsf);color:var(--ink2);margin-top:12px}
+  .A .foot{display:flex;gap:12px;padding:12px 0 calc(var(--safe-bottom) + 12px)}
+  .A .foot .back{width:64px;flex:none;background:var(--surf);box-shadow:inset 0 0 0 2px var(--ink)}
+  .A .foot .primary{flex:1;flex-direction:row}
+  .A .card{background:var(--surf);border-radius:24px;padding:18px 20px;box-shadow:0 1px 1px rgba(22,26,23,.05),0 12px 28px -14px rgba(22,26,23,.22)}
+  .A .wave{display:flex;align-items:center;gap:3px;height:36px;flex:1}
+  .A .wave i{display:block;width:4px;border-radius:2px;background:var(--red)}
+  .A .quote{font:500 20px/1.4 var(--gsf);margin-top:12px}
+  .A .meta{font:500 15px/1.3 var(--gsf);color:var(--ink2)}
+  .A .field{border-radius:18px;background:var(--surf);box-shadow:inset 0 0 0 2px var(--line);padding:16px 18px;min-height:96px;font:400 18px var(--gsf);color:var(--ink2);margin-top:14px}
+  .A .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .A .tl{flex:1;overflow:hidden}
+  .A .ev{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .A .ev .mk{width:22px;height:22px;border-radius:50%;border:4px solid var(--red);background:#fff;flex:none;margin-top:3px}
+  .A .ev .mk.s{border-color:#2F5D46;background:#2F5D46}
+  .A .ev h3{margin:0;font:700 19px/1.3 var(--gsf)}
+  .A .ok{display:inline-flex;align-items:center;gap:6px;font:600 15px var(--gsf);color:#2F5D46;margin-top:6px}
+  .A .bubble{background:#2F5D46;color:#fff;border-radius:6px 22px 22px 22px;padding:14px 16px;font:400 18px/1.4 var(--gsf);margin-top:8px}
+  .A .thumb{width:84px;height:64px;border-radius:12px;background:linear-gradient(160deg,#E8C3AA,#D9A98C);position:relative;margin-top:8px;overflow:hidden}
+  .A .thumb::after{content:"";position:absolute;left:36px;top:6px;width:10px;height:52px;border-radius:5px;background:#F4EEE6;box-shadow:inset 0 0 0 2px #E0D6CA}
+  .A .reply{display:flex;gap:10px;align-items:center;padding:12px 0 calc(var(--safe-bottom) + 10px)}
+  .A .reply .in{flex:1;height:56px;border-radius:28px;background:var(--surf);box-shadow:inset 0 0 0 2px var(--line);display:flex;align-items:center;padding:0 20px;font:400 18px var(--gsf);color:var(--ink2)}
+  .A .send{width:56px;height:56px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;flex:none}
+
+  .screen.urgent{background:#C4161C;color:#fff}
+  .urgent .wrap{padding-bottom:calc(var(--safe-bottom) + 16px)}
+
+  /* iOS shared */
+  .ios-tabs{position:absolute;left:24px;right:24px;bottom:calc(var(--safe-bottom) - 6px);height:64px;border-radius:32px;display:flex;align-items:center;padding:4px}
+  .ios-tabs div{flex:1;height:56px;border-radius:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:600 12px var(--sf)}
+
+  /* ================= B · TELEPHONE ================= */
+  .B{--g:#FFC72C;--ink:#17140C;--ink2:#4D3F12;--key:#FFFDF4;--keyb:#C79300;--dk:#1C1913;--line:rgba(23,20,12,.14);
+     background:var(--g);color:var(--ink);font-family:var(--gsf)}
+  .B .disp{font-family:var(--gsf);font-variation-settings:"ROND" 100,"wdth" 100;font-weight:850;letter-spacing:-.025em}
+  .B .key{background:linear-gradient(180deg,#FFFFFB,#F4EEDA);border-radius:24px;box-shadow:0 6px 0 var(--keyb),0 14px 18px -10px rgba(70,45,0,.5),inset 0 1px 0 #fff;color:var(--ink)}
+  .B .key.dark{background:linear-gradient(180deg,#2C2820,#16140F);color:#FFF6D8;box-shadow:0 6px 0 #000,0 14px 18px -10px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.12)}
+  .B .key.down{transform:translateY(4px);box-shadow:0 2px 0 #000,inset 0 1px 0 rgba(255,255,255,.12)}
+  .B .date{font:600 18px/1.3 var(--gsf);font-variation-settings:"ROND" 100;margin-top:12px;color:var(--ink2)}
+  .B .big{font-size:132px;line-height:.86;margin-top:6px;display:flex;align-items:flex-end;gap:16px}
+  .B .big span{font-size:28px;line-height:1.1;font-weight:750;padding-bottom:10px;letter-spacing:-.01em}
+  .B .ticks{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:22px}
+  .B .ticks i{height:38px;border-radius:12px;background:rgba(23,20,12,.12);display:grid;place-items:center;font:700 15px var(--gsf);font-style:normal;color:#43360A}
+  .B .ticks i.k{box-shadow:inset 0 0 0 3px #C4161C;color:#7A0A0E;background:var(--key)}
+  .B .ticks i.d{background:var(--ink);color:var(--g)}
+  .B .ticks i.t{background:var(--key);box-shadow:0 3px 0 var(--keyb);color:var(--ink);font-size:18px;font-weight:850}
+  .B .tickcap{font:600 16px var(--gsf);color:var(--ink2);margin-top:8px}
+  .B .k-main{display:flex;align-items:center;gap:16px;padding:22px 22px;margin-top:28px}
+  .B .k-main .t{font:800 24px/1.15 var(--gsf);font-variation-settings:"ROND" 100}
+  .B .k-main .s{font:500 16px/1.3 var(--gsf);opacity:.8;margin-top:4px}
+  .B .k-main .go{margin-left:auto;width:52px;height:52px;border-radius:50%;background:var(--g);color:var(--ink);display:grid;place-items:center;flex:none}
+  .B .krow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  .B .krow .key{padding:16px;min-height:96px;display:flex;flex-direction:column;justify-content:space-between;font:750 19px/1.2 var(--gsf);font-variation-settings:"ROND" 100}
+  .B .lamp{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FF8A7A,#D3261C);box-shadow:inset 0 -1px 2px rgba(0,0,0,.3)}
+  .B .nav{display:flex;padding:12px 0 calc(var(--safe-bottom) + 8px);margin:0 -20px;background:#F2B81B}
+  .B .nav div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font:700 14px var(--gsf);color:var(--ink2)}
+  .B .nav .pill{width:64px;height:32px;border-radius:16px;display:grid;place-items:center}
+  .B .nav .on{color:var(--ink)} .B .nav .on .pill{background:var(--ink);color:var(--g)}
+  .B .top{display:flex;align-items:center;gap:14px;height:56px;font:700 18px var(--gsf)}
+  .B .prog{flex:1;height:14px;border-radius:7px;background:rgba(23,20,12,.16);overflow:hidden}
+  .B .prog i{display:block;height:100%;width:37.5%;background:var(--ink);border-radius:7px}
+  .B h1{font-size:36px;line-height:1.08;margin:20px 0 6px}
+  .B .hint{font:500 18px/1.35 var(--gsf);color:var(--ink2)}
+  .B .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 14px;margin-top:22px}
+  .B .pad .key{height:66px;display:grid;place-items:center;font:800 30px var(--gsf);font-variation-settings:"ROND" 100}
+  .B .pad .wide{grid-column:span 2}
+  .B .foot{display:flex;gap:14px;padding:16px 0 calc(var(--safe-bottom) + 12px);margin-top:auto}
+  .B .foot .key{height:64px;display:flex;align-items:center;justify-content:center;gap:10px;font:800 20px var(--gsf);font-variation-settings:"ROND" 100}
+  .B .slip{background:var(--key);border-radius:24px;padding:18px 20px;box-shadow:0 2px 0 var(--keyb)}
+  .B .wave{display:flex;align-items:center;gap:3px;height:34px;flex:1}
+  .B .wave i{display:block;width:4px;border-radius:2px;background:var(--ink)}
+  .B .quote{font:600 20px/1.4 var(--gsf);margin-top:12px}
+  .B .meta{font:600 15px/1.3 var(--gsf);color:var(--ink2)}
+  .B .bigmic{width:132px;height:132px;border-radius:50%;display:grid;place-items:center;margin:0 auto}
+  .B .ev{background:var(--key);border-radius:24px;padding:16px 18px;margin-top:12px;box-shadow:0 3px 0 var(--keyb)}
+  .B .ev h3{margin:0;font:800 19px/1.3 var(--gsf);font-variation-settings:"ROND" 100}
+  .B .ok{display:inline-flex;align-items:center;gap:6px;font:700 14px var(--gsf);background:var(--ink);color:var(--g);border-radius:14px;padding:5px 12px 5px 8px}
+  .B .from{background:var(--dk);color:#FFF6D8;box-shadow:0 3px 0 #000}
+  .B .from .meta{color:#E9D9A6}
+  .B .thumb{width:100%;height:84px;border-radius:14px;background:linear-gradient(160deg,#E8C3AA,#D9A98C);position:relative;margin-top:10px;overflow:hidden}
+  .B .thumb::after{content:"";position:absolute;left:46%;top:8px;width:12px;height:68px;border-radius:6px;background:#F4EEE6;box-shadow:inset 0 0 0 2px #E0D6CA}
+  .B .reply{display:flex;gap:12px;align-items:center;padding:12px 0 calc(var(--safe-bottom) + 10px)}
+  .B .reply .in{flex:1;height:60px;border-radius:30px;background:var(--key);display:flex;align-items:center;padding:0 20px;font:500 18px var(--gsf);color:var(--ink2);box-shadow:inset 0 2px 0 rgba(0,0,0,.08)}
+  .B .tl{flex:1;overflow:hidden}
+
+  /* ================= C · NIGHT PHARMACY ================= */
+  .C{--g:#0D1412;--g2:#16201D;--ink:#EEF3EF;--ink2:#A9B8B0;--green:#2BC46A;--line:rgba(238,243,239,.1);
+     background:var(--g);color:var(--ink);font-family:var(--gsf)}
+  .C .serif{font-family:Literata,var(--ny);font-optical-sizing:auto}
+  .C .scene{position:relative;margin:calc(-1 * var(--safe-top) - 4px) -20px 0;flex:1;min-height:300px;overflow:hidden}
+  .C .date{font:500 18px/1.3 var(--gsf);color:var(--ink2)}
+  .C .day{font-family:Literata;font-weight:600;font-size:64px;line-height:1;letter-spacing:-.02em;margin-top:6px}
+  .C .day em{font-style:italic;font-weight:400;color:var(--ink2);font-size:30px;letter-spacing:0}
+  .C .state{font:400 20px/1.4 Literata;margin-top:10px;color:var(--ink)}
+  .C .btn{display:flex;align-items:center;justify-content:center;gap:12px;border-radius:32px;min-height:64px;font:700 20px var(--gsf)}
+  .C .primary{background:linear-gradient(180deg,#3BD27A,#22B05C);color:#04160B;margin-top:24px}
+  .C .secondary{background:var(--g2);color:var(--ink);box-shadow:inset 0 0 0 1.5px rgba(238,243,239,.22);margin-top:12px}
+  .C .msg{display:flex;gap:14px;align-items:flex-start;margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+  .C .msg p{margin:2px 0 0;font:400 18px/1.4 Literata;font-style:italic}
+  .C .ava{width:44px;height:44px;border-radius:50%;background:linear-gradient(160deg,#F1D3B5,#D9AE88);color:#3A2414;display:grid;place-items:center;font:700 17px var(--gsf);flex:none}
+  .C .meta{font:500 15px/1.3 var(--gsf);color:var(--ink2)}
+  .C .nav{display:flex;padding:12px 0 calc(var(--safe-bottom) + 8px);margin:0 -20px;background:#121B18}
+  .C .nav div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font:600 14px var(--gsf);color:var(--ink2)}
+  .C .nav .pill{width:64px;height:32px;border-radius:16px;display:grid;place-items:center}
+  .C .nav .on{color:var(--ink)} .C .nav .on .pill{background:#1F3A2C;color:var(--green)}
+  .C .top{display:flex;align-items:center;gap:12px;height:56px;font:600 18px var(--gsf)}
+  .C .steps{display:flex;gap:6px;margin-left:auto}
+  .C .steps i{width:22px;height:8px;border-radius:4px;background:rgba(238,243,239,.16)}
+  .C .steps i.d{background:var(--green)}
+  .C h1{font:600 34px/1.15 Literata;letter-spacing:-.01em;margin:28px 0 8px}
+  .C .hint{font:400 18px/1.4 var(--gsf);color:var(--ink2)}
+  .C .stepper{display:flex;align-items:center;justify-content:space-between;margin-top:40px}
+  .C .stepper .b{width:76px;height:76px;border-radius:50%;background:var(--g2);box-shadow:inset 0 0 0 1.5px rgba(238,243,239,.25);display:grid;place-items:center}
+  .C .stepper .n{font:600 120px/1 Literata;letter-spacing:-.03em}
+  .C .bar{display:grid;grid-template-columns:repeat(11,1fr);gap:4px;margin-top:30px}
+  .C .bar i{height:30px;border-radius:6px;background:rgba(238,243,239,.1)}
+  .C .bar i.d{background:linear-gradient(180deg,#4BDB86,#22B05C)}
+  .C .ends{display:flex;justify-content:space-between;font:500 16px var(--gsf);color:var(--ink2);margin-top:10px}
+  .C .foot{display:flex;gap:12px;padding:12px 0 calc(var(--safe-bottom) + 12px)}
+  .C .foot .back{width:64px;flex:none;background:var(--g2);box-shadow:inset 0 0 0 1.5px rgba(238,243,239,.22);color:var(--ink)}
+  .C .foot .primary{flex:1;margin:0}
+  .C .rec{width:150px;height:150px;border-radius:50%;margin:20px auto 0;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#3BD27A,#1A9E50);color:#04160B;box-shadow:0 0 0 14px rgba(43,196,106,.12),0 0 0 28px rgba(43,196,106,.06)}
+  .C .card{background:var(--g2);border-radius:24px;padding:18px 20px;box-shadow:0 20px 40px -24px #000}
+  .C .quote{font:400 21px/1.45 Literata;font-style:italic;margin-top:10px}
+  .C .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .C .tl{flex:1;overflow:hidden}
+  .C .letter{background:#F3EFE6;color:#1D1A14;border-radius:22px;padding:18px 20px;margin-top:14px}
+  .C .letter p{font:400 19px/1.45 Literata;margin:8px 0 0}
+  .C .letter .meta{color:#5D564A}
+  .C .ev{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .C .ev h3{margin:0;font:600 19px/1.3 var(--gsf)}
+  .C .ok{display:inline-flex;align-items:center;gap:6px;font:600 15px var(--gsf);color:var(--green);margin-top:6px}
+  .C .glyph{width:32px;height:44px;display:grid;place-items:center;flex:none;color:var(--ink2)}
+  .C .reply{display:flex;gap:10px;align-items:center;padding:12px 0 calc(var(--safe-bottom) + 10px)}
+  .C .reply .in{flex:1;height:56px;border-radius:28px;background:var(--g2);box-shadow:inset 0 0 0 1.5px rgba(238,243,239,.2);display:flex;align-items:center;padding:0 20px;font:400 18px var(--gsf);color:var(--ink2)}
+  .C .send{width:56px;height:56px;border-radius:50%;background:var(--green);color:#04160B;display:grid;place-items:center;flex:none}
+
+  .ios.A,.ios.A *{font-family:var(--sf)} .ios.A .disp{font-family:Archivo}
+  .ios.B .disp,.ios.B .k-main .t{font-family:var(--gsf)}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+  <symbol id="cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="today" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+  <symbol id="send" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></symbol>
+  <symbol id="text" viewBox="0 0 24 24"><path d="M5 6h14M5 11h14M5 16h9"/></symbol>
+</svg>
+
+<!-- ======================================================= A -->
+<div class="label">A · Planinska pot <small>eSkrb is a marked mountain trail. Light, Archivo Expanded, trail-blaze red. Every check-in leaves a blaze.</small></div>
+
+<section class="screen A" data-os="android" data-name="a-home" data-kind="core" data-time="9:12">
+  <div class="wrap">
+    <div class="date">Sobota, 21. november</div>
+    <div class="day disp"><b>Dan 4</b><span>od 42</span></div>
+    <svg class="trail" data-trail="4" viewBox="0 0 412 200" preserveAspectRatio="xMidYMax meet"></svg>
+    <div class="btn primary" data-cta>Začni dnevni pregled<small>8 vprašanj, okoli 2 minuti</small></div>
+    <div class="btn secondary"><svg class="i"><use href="#mic"/></svg>Dodaj zapis</div>
+    <div class="msg"><div class="ava">PŽ</div><div class="grow">Sestra Petra vam je odgovorila<div class="meta">Danes ob 10.14</div></div><div class="dot"></div></div>
+    <div class="nav"><div class="on"><span class="pill"><span class="ms">calendar_today</span></span>Danes</div><div><span class="pill"><span class="ms">forum</span></span>Zapisi</div></div>
+  </div>
+</section>
+
+<section class="screen A" data-os="android" data-name="a-question" data-kind="create" data-time="9:13">
+  <div class="wrap">
+    <div class="top"><span class="ms">arrow_back</span>3 od 8
+      <div class="blazes"><i class="bz d"></i><i class="bz d"></i><i class="bz c"></i><i class="bz"></i><i class="bz"></i><i class="bz"></i><i class="bz"></i><i class="bz"></i></div></div>
+    <h1 class="disp">Kako močna je bolečina v kolenu?</h1>
+    <div class="hint">Izberite številko. 0 pomeni, da ne boli.</div>
+    <div class="grow"></div>
+    <div class="scale"><div>0</div><div>1</div><div>2</div><div>3</div><div class="sel">4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div></div>
+    <div class="ends"><span>0 · ne boli</span><span>10 · najhujše</span></div>
+    <div style="height:24px"></div>
+    <div class="foot"><div class="btn back"><span class="ms">arrow_back</span></div><div class="btn primary" data-cta>Naprej</div></div>
+  </div>
+</section>
+
+<section class="screen A" data-os="android" data-name="a-log" data-kind="create" data-time="9:20">
+  <div class="wrap">
+    <div class="top"><span class="ms">close</span>Nov zapis</div>
+    <div class="card" style="margin-top:10px">
+      <div class="row"><svg class="i" style="color:var(--red)"><use href="#mic"/></svg><div class="wave" id="wa"></div><span class="meta">0:07</span></div>
+      <div class="quote" data-ugc>»Od jutra me boli leva meča in je bolj trda kot včeraj.«</div>
+      <div class="meta" style="margin-top:10px">Prepis vašega posnetka. Preberite, ali je prav.</div>
+    </div>
+    <div class="field">Kaj še želite povedati?</div>
+    <div class="two"><div class="btn secondary" style="margin:0"><svg class="i"><use href="#cam"/></svg>Slikaj</div><div class="btn secondary" style="margin:0"><span class="ms">image</span>Iz galerije</div></div>
+    <div class="grow"></div>
+    <div class="foot"><div class="btn primary" data-cta>Pošlji zapis</div></div>
+  </div>
+</section>
+
+<section class="screen A urgent" data-os="android" data-name="a-urgent" data-kind="state" data-time="9:21" data-chrome="light">
+  <div class="wrap">
+    <svg viewBox="0 0 80 80" width="76" height="76" style="margin-top:28px"><circle cx="40" cy="40" r="32" fill="#fff"/><path d="M40 20v26" stroke="#C4161C" stroke-width="8" stroke-linecap="round"/><circle cx="40" cy="58" r="5" fill="#C4161C"/></svg>
+    <div class="disp" style="font-size:58px;line-height:.98;margin-top:28px">Pokličite 112.</div>
+    <p style="font:500 22px/1.4 var(--gsf);margin:20px 0 0">Bolečina in trdota v meči sta lahko znak krvnega strdka. To je treba pregledati danes.</p>
+    <p data-ugc style="font:400 18px/1.4 var(--gsf);opacity:.85;margin:18px 0 0">Zapisali ste: »Od jutra me boli leva meča in je bolj trda kot včeraj.«</p>
+    <div class="grow"></div>
+    <div data-cta style="background:#fff;color:#C4161C;border-radius:22px;min-height:76px;display:flex;align-items:center;justify-content:center;gap:12px;font:800 26px Archivo;font-stretch:115%"><svg class="i" style="width:30px;height:30px"><use href="#phone"/></svg>Pokliči 112</div>
+    <p style="font:500 17px/1.4 var(--gsf);text-align:center;margin:16px 0 0">Vaša ekipa na ortopediji je že obveščena.</p>
+  </div>
+</section>
+
+<section class="screen A" data-os="android" data-name="a-timeline" data-kind="list" data-time="10:31">
+  <div class="wrap">
+    <div class="top" style="font-size:22px"><span class="disp" style="font-size:26px">Zapisi</span></div>
+    <div class="tl" data-scrolls>
+      <div class="ev"><div class="ava" style="width:36px;height:36px;font-size:14px">PŽ</div><div class="grow"><div class="meta">Sestra Petra Žagar · danes 10.14</div><div class="bubble" data-ugc>Fotografija je jasna, rana lepo celi. Jutri zjutraj nam sporočite še temperaturo.</div></div></div>
+      <div class="ev"><i class="mk"></i><div><h3>Fotografija rane</h3><div class="meta">Včeraj ob 18.40</div><div class="thumb"></div><div class="ok"><svg class="i" style="width:18px;height:18px"><use href="#check"/></svg>Pregledano</div></div></div>
+      <div class="ev"><i class="mk"></i><div><h3>Dnevni pregled</h3><div class="meta">Včeraj ob 9.02 · bolečina 5 · 37,4 °C</div><div class="ok"><svg class="i" style="width:18px;height:18px"><use href="#check"/></svg>Pregledano</div></div></div>
+      <div class="ev"><i class="mk"></i><div><h3>Glasovni zapis</h3><div class="meta" data-ugc>»Ponoči sem slabo spala, koleno je peklo.«</div><div class="ok"><svg class="i" style="width:18px;height:18px"><use href="#check"/></svg>Pregledano</div></div></div>
+    </div>
+    <div class="reply"><div class="in">Odgovorite sestri Petri</div><div class="send"><svg class="i"><use href="#send"/></svg></div></div>
+  </div>
+</section>
+
+<section class="screen A ios" data-name="a-home-ios" data-kind="core" data-time="9:12">
+  <div class="wrap">
+    <div class="date">Sobota, 21. november</div>
+    <div class="day disp"><b>Dan 4</b><span>od 42</span></div>
+    <svg class="trail" data-trail="4" viewBox="0 0 412 200" preserveAspectRatio="xMidYMax meet"></svg>
+    <div class="btn primary" data-cta>Začni dnevni pregled<small>8 vprašanj, okoli 2 minuti</small></div>
+    <div class="btn secondary"><svg class="i"><use href="#mic"/></svg>Dodaj zapis</div>
+    <div class="msg" style="margin-bottom:110px"><div class="ava">PŽ</div><div class="grow">Sestra Petra vam je odgovorila<div class="meta">Danes ob 10.14</div></div><div class="dot"></div></div>
+  </div>
+  <div class="ios-tabs glass" data-float><div style="background:rgba(206,42,30,.12);color:#A41A12"><svg class="i"><use href="#today"/></svg>Danes</div><div><svg class="i"><use href="#chat"/></svg>Zapisi</div></div>
+</section>
+
+<!-- ======================================================= B -->
+<div class="label">B · Telefon s tipkami <small>eSkrb is a push-button telephone. Yellow body, rounded Google Sans Flex, chunky keys you press. Pain is a keypad; urgent is one key.</small></div>
+
+<section class="screen B" data-os="android" data-name="b-home" data-kind="core" data-time="9:12">
+  <div class="wrap">
+    <div class="date">Sobota, 21. november</div>
+    <div class="big disp">4<span>dan<br>od 42</span></div>
+    <div class="ticks" id="bt"></div>
+    <div class="tickcap">Kontrola pri zdravniku je 14. dan, čez 10 dni.</div>
+    <div class="grow"></div>
+    <div class="key dark k-main" data-cta><div><div class="t">Dnevni pregled</div><div class="s">8 vprašanj, okoli 2 minuti</div></div><div class="go"><svg class="i" style="width:28px;height:28px"><use href="#chev"/></svg></div></div>
+    <div class="krow">
+      <div class="key"><svg class="i" style="width:30px;height:30px"><use href="#mic"/></svg>Dodaj zapis</div>
+      <div class="key"><div class="row" style="justify-content:space-between"><svg class="i" style="width:30px;height:30px"><use href="#chat"/></svg><i class="lamp"></i></div>Sestra Petra je odgovorila</div>
+    </div>
+    <div style="height:22px"></div>
+    <div class="nav"><div class="on"><span class="pill"><span class="ms">calendar_today</span></span>Danes</div><div><span class="pill"><span class="ms">forum</span></span>Zapisi</div></div>
+  </div>
+</section>
+
+<section class="screen B" data-os="android" data-name="b-question" data-kind="create" data-time="9:13">
+  <div class="wrap">
+    <div class="top"><span class="ms">arrow_back</span><div class="prog"><i></i></div>3 / 8</div>
+    <h1 class="disp">Kako močna je bolečina v kolenu?</h1>
+    <div class="hint">0 ne boli, 10 je najhujše.</div>
+    <div class="grow"></div>
+    <div class="pad">
+      <div class="key">1</div><div class="key">2</div><div class="key">3</div>
+      <div class="key dark down">4</div><div class="key">5</div><div class="key">6</div>
+      <div class="key">7</div><div class="key">8</div><div class="key">9</div>
+      <div class="key">0</div><div class="key wide">10</div>
+    </div>
+    <div class="foot" style="margin-top:12px"><div class="key" style="width:72px;flex:none"><span class="ms">arrow_back</span></div><div class="key dark" style="flex:1" data-cta>Naprej</div></div>
+  </div>
+</section>
+
+<section class="screen B" data-os="android" data-name="b-log" data-kind="create" data-time="9:20">
+  <div class="wrap">
+    <div class="top"><span class="ms">close</span>Nov zapis</div>
+    <div class="slip" style="margin-top:8px">
+      <div class="row"><div class="wave" id="wb"></div><span class="meta">0:07</span></div>
+      <div class="quote" data-ugc>»Od jutra me boli leva meča in je bolj trda kot včeraj.«</div>
+      <div class="meta" style="margin-top:10px">Tako smo slišali. Je prav?</div>
+    </div>
+    <div class="grow"></div>
+    <div class="key dark bigmic"><svg class="i" style="width:52px;height:52px"><use href="#mic"/></svg></div>
+    <div class="hint" style="text-align:center;margin-top:14px">Pritisnite in govorite</div>
+    <div class="krow" style="margin-top:24px">
+      <div class="key" style="min-height:76px;flex-direction:row;align-items:center;gap:10px;justify-content:center"><svg class="i"><use href="#text"/></svg>Napiši</div>
+      <div class="key" style="min-height:76px;flex-direction:row;align-items:center;gap:10px;justify-content:center"><svg class="i"><use href="#cam"/></svg>Slikaj</div>
+    </div>
+    <div class="foot"><div class="key dark" style="flex:1" data-cta>Pošlji zapis</div></div>
+  </div>
+</section>
+
+<section class="screen B urgent" data-os="android" data-name="b-urgent" data-kind="state" data-time="9:21" data-chrome="light">
+  <div class="wrap" style="font-family:var(--gsf)">
+    <div class="disp" style="font-size:52px;line-height:1;margin-top:40px">Pokličite 112.</div>
+    <p style="font:600 22px/1.4 var(--gsf);margin:18px 0 0">Bolečina in trdota v meči sta lahko znak krvnega strdka. To je treba pregledati danes.</p>
+    <div class="grow"></div>
+    <div data-cta style="width:220px;height:220px;border-radius:56px;margin:0 auto;background:linear-gradient(180deg,#FFFFFB,#F4EEDA);color:#C4161C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 10px 0 #7E0A0E,0 24px 30px -12px rgba(0,0,0,.5)">
+      <svg class="i" style="width:40px;height:40px"><use href="#phone"/></svg><span style="font:850 72px/1 var(--gsf);font-variation-settings:'ROND' 100;letter-spacing:-.03em">112</span></div>
+    <div style="text-align:center;font:700 20px var(--gsf);margin-top:22px">Pritisnite za klic</div>
+    <div class="grow"></div>
+    <p style="font:500 17px/1.4 var(--gsf);text-align:center;margin:0">Vaša ekipa na ortopediji je že obveščena.</p>
+  </div>
+</section>
+
+<section class="screen B" data-os="android" data-name="b-timeline" data-kind="list" data-time="10:31">
+  <div class="wrap">
+    <div class="top"><span class="disp" style="font-size:32px">Zapisi</span></div>
+    <div class="tl" data-scrolls>
+      <div class="ev from"><div class="meta">Sestra Petra Žagar · danes 10.14</div><div class="quote" data-ugc style="margin-top:6px;font-weight:500">Fotografija je jasna, rana lepo celi. Jutri zjutraj nam sporočite še temperaturo.</div></div>
+      <div class="ev"><div class="row" style="justify-content:space-between"><h3>Fotografija rane</h3><span class="ok"><svg class="i" style="width:16px;height:16px"><use href="#check"/></svg>Pregledano</span></div><div class="meta">Včeraj ob 18.40</div><div class="thumb"></div></div>
+      <div class="ev"><div class="row" style="justify-content:space-between"><h3>Dnevni pregled</h3><span class="ok"><svg class="i" style="width:16px;height:16px"><use href="#check"/></svg>Pregledano</span></div><div class="meta">Včeraj ob 9.02 · bolečina 5 · 37,4 °C</div></div>
+      <div class="ev"><div class="row" style="justify-content:space-between"><h3>Glasovni zapis</h3><span class="ok"><svg class="i" style="width:16px;height:16px"><use href="#check"/></svg>Pregledano</span></div><div class="meta" data-ugc>»Ponoči sem slabo spala, koleno je peklo.«</div></div>
+    </div>
+    <div class="reply"><div class="in">Odgovorite sestri Petri</div><div class="key dark" style="width:60px;height:60px;border-radius:50%;display:grid;place-items:center;flex:none"><svg class="i"><use href="#send"/></svg></div></div>
+  </div>
+</section>
+
+<section class="screen B ios" data-name="b-home-ios" data-kind="core" data-time="9:12">
+  <div class="wrap">
+    <div class="date">Sobota, 21. november</div>
+    <div class="big disp">4<span>dan<br>od 42</span></div>
+    <div class="ticks" id="bt2"></div>
+    <div class="tickcap">Kontrola pri zdravniku je 14. dan, čez 10 dni.</div>
+    <div class="grow"></div>
+    <div class="key dark k-main" data-cta><div><div class="t">Dnevni pregled</div><div class="s">8 vprašanj, okoli 2 minuti</div></div><div class="go"><svg class="i" style="width:28px;height:28px"><use href="#chev"/></svg></div></div>
+    <div class="krow" style="margin-bottom:116px">
+      <div class="key"><svg class="i" style="width:30px;height:30px"><use href="#mic"/></svg>Dodaj zapis</div>
+      <div class="key"><div class="row" style="justify-content:space-between"><svg class="i" style="width:30px;height:30px"><use href="#chat"/></svg><i class="lamp"></i></div>Sestra Petra je odgovorila</div>
+    </div>
+  </div>
+  <div class="ios-tabs glass" data-float><div style="background:rgba(23,20,12,.9);color:#FFC72C"><svg class="i"><use href="#today"/></svg>Danes</div><div><svg class="i"><use href="#chat"/></svg>Zapisi</div></div>
+</section>
+
+<!-- ======================================================= C -->
+<div class="label">C · Dežurna lekarna <small>eSkrb is the lit sign of the night pharmacy: someone is on duty. Dark, Literata serif, pharmacy green. The cross lights when today's check-in is sent.</small></div>
+
+<section class="screen C" data-os="android" data-name="c-home" data-kind="core" data-time="20:12">
+  <div class="wrap">
+    <div class="scene" data-sign="off"></div>
+    <div class="date">Sobota, 21. november</div>
+    <div class="day">4. dan <em>od 42</em></div>
+    <div class="state">Današnji pregled še čaka. Ko ga pošljete, križ zasveti.</div>
+    <div class="btn primary" data-cta>Začni dnevni pregled</div>
+    <div class="btn secondary"><svg class="i"><use href="#mic"/></svg>Dodaj zapis</div>
+    <div style="height:24px"></div>
+    <div class="nav"><div class="on"><span class="pill"><span class="ms">calendar_today</span></span>Danes</div><div><span class="pill"><span class="ms">forum</span></span>Zapisi</div></div>
+  </div>
+</section>
+
+<section class="screen C" data-os="android" data-name="c-question" data-kind="create" data-time="20:13">
+  <div class="wrap">
+    <div class="top"><span class="ms">arrow_back</span>3 od 8<div class="steps"><i class="d"></i><i class="d"></i><i class="d"></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <h1>Kako močna je bolečina v kolenu?</h1>
+    <div class="hint">0 pomeni, da ne boli. 10 je najhujša bolečina.</div>
+    <div class="grow"></div>
+    <div class="stepper"><div class="b"><span class="ms" style="font-size:40px">remove</span></div><div class="n">4</div><div class="b"><span class="ms" style="font-size:40px">add</span></div></div>
+    <div class="bar"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="ends"><span>0</span><span>10</span></div>
+    <div style="height:28px"></div>
+    <div class="foot"><div class="btn back"><span class="ms">arrow_back</span></div><div class="btn primary" data-cta>Naprej</div></div>
+  </div>
+</section>
+
+<section class="screen C" data-os="android" data-name="c-log" data-kind="create" data-time="20:20">
+  <div class="wrap">
+    <div class="top"><span class="ms">close</span>Nov zapis</div>
+    <div class="card" style="margin-top:8px">
+      <div class="meta">Vaš posnetek, 0:07</div>
+      <div class="quote" data-ugc>»Od jutra me boli leva meča in je bolj trda kot včeraj.«</div>
+      <div class="meta" style="margin-top:10px">Če kaj ni prav, posnemite znova.</div>
+    </div>
+    <div class="rec"><svg class="i" style="width:56px;height:56px;stroke-width:2"><use href="#mic"/></svg></div>
+    <div class="hint" style="text-align:center;margin-top:30px">Dotaknite se in povejte, kako ste</div>
+    <div class="two" style="margin-top:22px"><div class="btn secondary" style="margin:0"><svg class="i"><use href="#text"/></svg>Napiši</div><div class="btn secondary" style="margin:0"><svg class="i"><use href="#cam"/></svg>Slikaj</div></div>
+    <div class="grow"></div>
+    <div class="foot"><div class="btn primary" data-cta>Pošlji zapis</div></div>
+  </div>
+</section>
+
+<section class="screen C urgent" data-os="android" data-name="c-urgent" data-kind="state" data-time="20:21" data-chrome="light">
+  <div class="wrap">
+    <div style="font:600 60px/1.02 Literata;letter-spacing:-.02em;margin-top:56px">Pokličite<br>112 zdaj.</div>
+    <p style="font:500 22px/1.4 var(--gsf);margin:22px 0 0">Bolečina in trdota v meči sta lahko znak krvnega strdka. To je treba pregledati danes.</p>
+    <p data-ugc style="font:italic 400 19px/1.45 Literata;opacity:.9;margin:18px 0 0">»Od jutra me boli leva meča in je bolj trda kot včeraj.«</p>
+    <div class="grow"></div>
+    <div data-cta style="background:#fff;color:#A40F14;border-radius:40px;min-height:80px;display:flex;align-items:center;justify-content:center;gap:12px;font:700 26px var(--gsf)"><svg class="i" style="width:30px;height:30px"><use href="#phone"/></svg>Pokliči 112</div>
+    <p style="font:500 17px/1.4 var(--gsf);text-align:center;margin:16px 0 0">Vaša ekipa na ortopediji je že obveščena.</p>
+  </div>
+</section>
+
+<section class="screen C" data-os="android" data-name="c-timeline" data-kind="list" data-time="20:31">
+  <div class="wrap">
+    <div class="top"><span class="serif" style="font-size:30px;font-weight:600">Zapisi</span></div>
+    <div class="tl" data-scrolls>
+      <div class="letter"><div class="row"><div class="ava" style="width:36px;height:36px;font-size:14px">PŽ</div><div class="meta">Sestra Petra Žagar<br>danes ob 10.14</div></div><p data-ugc>Fotografija je jasna, rana lepo celi. Jutri zjutraj nam sporočite še temperaturo.</p></div>
+      <div class="ev"><div class="glyph"><svg class="i"><use href="#cam"/></svg></div><div><h3>Fotografija rane</h3><div class="meta">Včeraj ob 18.40</div><div class="ok"><svg class="i" style="width:18px;height:18px"><use href="#check"/></svg>Pregledano</div></div></div>
+      <div class="ev"><div class="glyph"><svg class="i"><use href="#today"/></svg></div><div><h3>Dnevni pregled</h3><div class="meta">Včeraj ob 9.02 · bolečina 5 · 37,4 °C</div><div class="ok"><svg class="i" style="width:18px;height:18px"><use href="#check"/></svg>Pregledano</div></div></div>
+      <div class="ev"><div class="glyph"><svg class="i"><use href="#mic"/></svg></div><div><h3>Glasovni zapis</h3><div class="meta" data-ugc>»Ponoči sem slabo spala, koleno je peklo.«</div><div class="ok"><svg class="i" style="width:18px;height:18px"><use href="#check"/></svg>Pregledano</div></div></div>
+    </div>
+    <div class="reply"><div class="in">Odgovorite sestri Petri</div><div class="send"><svg class="i"><use href="#send"/></svg></div></div>
+  </div>
+</section>
+
+<section class="screen C ios" data-name="c-home-ios" data-kind="state" data-theme="dark" data-time="20:16">
+  <div class="wrap">
+    <div class="scene" data-sign="on"></div>
+    <div class="date" style="font-family:var(--sf)">Sobota, 21. november</div>
+    <div class="day">4. dan <em>od 42</em></div>
+    <div class="state">Pregled je poslan. Ekipa ga bo pogledala do jutri do 10.00.</div>
+    <div class="msg"><div class="ava">PŽ</div><div><div class="meta" style="font-family:var(--sf)">Sestra Petra · danes 10.14</div><p data-ugc>Rana lepo celi. Jutri zjutraj nam sporočite še temperaturo.</p></div></div>
+    <div class="btn secondary" style="margin:20px 0 112px;font-family:var(--sf)"><svg class="i"><use href="#mic"/></svg>Dodaj zapis</div>
+  </div>
+  <div class="ios-tabs glass" data-float><div style="background:rgba(43,196,106,.18);color:#2BC46A"><svg class="i"><use href="#today"/></svg>Danes</div><div style="color:#EEF3EF"><svg class="i"><use href="#chat"/></svg>Zapisi</div></div>
+</section>
+
+<script>
+// A: trail with 42 blazes
+document.querySelectorAll('svg[data-trail]').forEach(svg=>{
+  const ns='http://www.w3.org/2000/svg', today=+svg.dataset.trail;
+  const add=(t,a)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e};
+  add('path',{d:'M0 120 L70 60 L120 95 L190 30 L250 85 L300 50 L412 110 L412 200 L0 200Z',fill:'#DCE4DA'});
+  add('path',{d:'M0 160 L90 110 L160 140 L240 95 L330 135 L412 120 L412 200 L0 200Z',fill:'#C9D6CA'});
+  const p=add('path',{d:'M24 188 C120 186 70 150 170 150 S 300 160 270 120 S 200 90 300 80 S 380 50 392 26',fill:'none',stroke:'#F4F6F2','stroke-width':6,'stroke-linecap':'round','stroke-dasharray':'1 11'});
+  const L=p.getTotalLength();
+  for(let i=0;i<42;i++){const pt=p.getPointAtLength(L*i/41);
+    if(i<today-1){add('circle',{cx:pt.x,cy:pt.y,r:7,fill:'#fff',stroke:'#CE2A1E','stroke-width':5})}
+    else if(i===today-1){add('circle',{cx:pt.x,cy:pt.y,r:15,fill:'#fff',stroke:'#CE2A1E','stroke-width':4,'stroke-dasharray':'5 4'})}
+    else{add('circle',{cx:pt.x,cy:pt.y,r:3,fill:'#7D8B80'})}
+    if(i===13){add('path',{d:`M${pt.x} ${pt.y} v-30`,stroke:'#161A17','stroke-width':2});add('path',{d:`M${pt.x} ${pt.y-30} h22 l-5 6 l5 6 h-22z`,fill:'#161A17'});
+      add('rect',{x:pt.x+24,y:pt.y-40,width:132,height:28,rx:14,fill:'#fff'});const t=add('text',{x:pt.x+34,y:pt.y-21,'font-size':15,'font-weight':600,fill:'#161A17','font-family':'Google Sans Flex, SF Pro'});t.textContent='kontrola, 14. dan'}
+  }
+});
+// waves
+[['wa',34],['wb',40]].forEach(([id,n])=>{const el=document.getElementById(id);if(!el)return;for(let i=0;i<n;i++){const b=document.createElement('i');b.style.height=(6+Math.abs(Math.sin(i*1.7)*Math.cos(i*.45))*28)+'px';el.appendChild(b)}});
+// B ticks
+['bt','bt2'].forEach(id=>{const el=document.getElementById(id);for(let i=0;i<42;i++){const t=document.createElement('i');t.textContent=i+1;if(i<3)t.className='d';if(i===3)t.className='t';if(i===13)t.className='k';el.appendChild(t)}});
+// C scene: night street, building corner, pharmacy cross sign
+document.querySelectorAll('.scene').forEach(s=>{
+  const on=s.dataset.sign==='on';
+  const lit=on?'url(#lit)':'#16261E', edge=on?'#8CF2B4':'#2C4A3A';
+  s.innerHTML=`<svg viewBox="0 0 412 300" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+  <defs><linearGradient id="lit" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6CF0A2"/><stop offset=".55" stop-color="#2BC46A"/><stop offset="1" stop-color="#169A4E"/></linearGradient>
+  <linearGradient id="wallshade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0D1412"/><stop offset="1" stop-color="#0D1412" stop-opacity="0"/></linearGradient><linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0D1412" stop-opacity="0"/><stop offset="1" stop-color="#0D1412"/></linearGradient><radialGradient id="spill" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#2BC46A" stop-opacity="${on?.22:0}"/><stop offset="1" stop-color="#2BC46A" stop-opacity="0"/></radialGradient></defs>
+  <rect width="412" height="300" fill="#0D1412"/>
+  <rect x="0" y="0" width="412" height="300" fill="#121C19"/><rect x="0" y="0" width="412" height="300" fill="url(#wallshade)"/><rect x="0" y="230" width="412" height="70" fill="url(#floor)"/>
+  <rect x="40" y="150" width="78" height="100" rx="4" fill="${on?'#2A3A2E':'#18241F'}"/><rect x="40" y="199" width="78" height="2" fill="#0D1412"/><rect x="78" y="150" width="2" height="100" fill="#0D1412"/>
+  
+  <circle cx="250" cy="150" r="130" fill="url(#spill)"/>
+  <rect x="214" y="70" width="4" height="34" fill="#2A3530"/>
+  <g transform="translate(250 150)"><path d="M-22 -66h44v44h44v44h-44v44h-44v-44h-44v-44h44z" fill="${lit}" stroke="${edge}" stroke-width="3" stroke-linejoin="round"/>
+  ${on?'<path d="M-18 -62h36v6h-36z" fill="#B9FFD3" opacity=".55"/>':''}</g>
+  
+  </svg>`;
+});
+</script>
+<script src="kit/device.js"></script>
+</body>
+</html>

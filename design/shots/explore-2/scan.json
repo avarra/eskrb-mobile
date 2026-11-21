@@ -1,0 +1,591 @@
+{
+  "surfaces": [
+    {
+      "name": "d-home",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "core",
+        "fonts": {
+          "Google Sans Flex": 5,
+          "Source Serif 4": 4
+        },
+        "sizes": [
+          72,
+          32,
+          28,
+          22,
+          21,
+          20
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 1,
+        "words": 27,
+        "headline": "72px, 4 words, 1 line(s)",
+        "accentHues": [],
+        "cards": 2
+      }
+    },
+    {
+      "name": "d-question",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "create",
+        "fonts": {
+          "Google Sans Flex": 17,
+          "Source Serif 4": 1
+        },
+        "sizes": [
+          38,
+          30,
+          22,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 1,
+        "words": 36,
+        "headline": "38px, 6 words, 2 line(s)",
+        "accentHues": [],
+        "cards": 1
+      }
+    },
+    {
+      "name": "d-log",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "create",
+        "fonts": {
+          "Google Sans Flex": 5,
+          "Source Serif 4": 2
+        },
+        "sizes": [
+          38,
+          26,
+          22,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 1,
+        "words": 17,
+        "headline": "38px, 2 words, 1 line(s)",
+        "accentHues": [],
+        "cards": 3
+      }
+    },
+    {
+      "name": "d-urgent",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "state",
+        "fonts": {
+          "Source Serif 4": 2,
+          "Google Sans Flex": 2
+        },
+        "sizes": [
+          64,
+          26,
+          19
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 1,
+        "words": 26,
+        "headline": "64px, 2 words, 1 line(s)",
+        "accentHues": [
+          0
+        ],
+        "cards": 1
+      }
+    },
+    {
+      "name": "d-timeline",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "list",
+        "fonts": {
+          "Google Sans Flex": 9,
+          "Source Serif 4": 3
+        },
+        "sizes": [
+          38,
+          24,
+          21,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 1,
+        "words": 28,
+        "headline": "38px, 1 words, 1 line(s)",
+        "accentHues": [],
+        "cards": 1
+      }
+    },
+    {
+      "name": "d-home-ios",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "ios",
+        "kind": "core",
+        "fonts": {
+          "SF Pro": 5,
+          "Source Serif 4": 4
+        },
+        "sizes": [
+          72,
+          32,
+          28,
+          22,
+          21,
+          20
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 1,
+        "words": 27,
+        "headline": "72px, 4 words, 1 line(s)",
+        "accentHues": [],
+        "cards": 2
+      }
+    },
+    {
+      "name": "e-home",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "core",
+        "fonts": {
+          "Lexend": 6
+        },
+        "sizes": [
+          34,
+          32,
+          21,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600"
+        ],
+        "leftEdges": 1,
+        "words": 19,
+        "headline": "34px, 4 words, 1 line(s)",
+        "accentHues": [
+          288,
+          48
+        ],
+        "cards": 2
+      }
+    },
+    {
+      "name": "e-question",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "create",
+        "fonts": {
+          "Lexend": 19
+        },
+        "sizes": [
+          176,
+          36,
+          28,
+          21,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 1,
+        "words": 33,
+        "headline": "176px, 1 words, 1 line(s)",
+        "accentHues": [
+          24,
+          288
+        ],
+        "cards": 1
+      }
+    },
+    {
+      "name": "e-question-high",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "create",
+        "fonts": {
+          "Lexend": 19
+        },
+        "sizes": [
+          176,
+          36,
+          28,
+          21,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 2,
+        "words": 34,
+        "headline": "176px, 1 words, 1 line(s)",
+        "accentHues": [
+          0,
+          288
+        ],
+        "cards": 1
+      }
+    },
+    {
+      "name": "e-log",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "create",
+        "fonts": {
+          "Lexend": 6
+        },
+        "sizes": [
+          24,
+          21,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600"
+        ],
+        "leftEdges": 2,
+        "words": 8,
+        "headline": "21px, 2 words, 1 line(s)",
+        "accentHues": [
+          288
+        ],
+        "cards": 4
+      }
+    },
+    {
+      "name": "e-urgent",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "state",
+        "fonts": {
+          "Lexend": 4
+        },
+        "sizes": [
+          56,
+          48,
+          22,
+          19
+        ],
+        "weights": [
+          "400",
+          "600"
+        ],
+        "leftEdges": 1,
+        "words": 20,
+        "headline": "56px, 1 words, 1 line(s)",
+        "accentHues": [
+          0
+        ],
+        "cards": 1
+      }
+    },
+    {
+      "name": "e-timeline",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "list",
+        "fonts": {
+          "Lexend": 11
+        },
+        "sizes": [
+          34,
+          21,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600"
+        ],
+        "leftEdges": 1,
+        "words": 24,
+        "headline": "34px, 1 words, 1 line(s)",
+        "accentHues": [
+          144,
+          288
+        ],
+        "cards": 2
+      }
+    },
+    {
+      "name": "e-home-ios",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "ios",
+        "kind": "core",
+        "fonts": {
+          "Lexend": 6
+        },
+        "sizes": [
+          34,
+          32,
+          21,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600"
+        ],
+        "leftEdges": 1,
+        "words": 19,
+        "headline": "34px, 4 words, 1 line(s)",
+        "accentHues": [
+          288,
+          48
+        ],
+        "cards": 2
+      }
+    },
+    {
+      "name": "f-home",
+      "type": "screen",
+      "fails": [],
+      "warns": [
+        "Largest text is 22px. No element owns the screen. (Mark data-dense if this is deliberate.)"
+      ],
+      "facts": {
+        "os": "android",
+        "kind": "core",
+        "fonts": {
+          "Atkinson Hyperlegible Next": 12
+        },
+        "sizes": [
+          22,
+          21,
+          18,
+          17,
+          16
+        ],
+        "weights": [
+          "400",
+          "700"
+        ],
+        "leftEdges": 4,
+        "words": 35,
+        "headline": "22px, 2 words, 1 line(s)",
+        "accentHues": [
+          24,
+          48
+        ],
+        "cards": 5
+      }
+    },
+    {
+      "name": "f-question",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "create",
+        "fonts": {
+          "Atkinson Hyperlegible Next": 21
+        },
+        "sizes": [
+          26,
+          21,
+          18,
+          17
+        ],
+        "weights": [
+          "400",
+          "700"
+        ],
+        "leftEdges": 2,
+        "words": 44,
+        "headline": "26px, 6 words, 2 line(s)",
+        "accentHues": [
+          24,
+          48
+        ],
+        "cards": 3
+      }
+    },
+    {
+      "name": "f-log",
+      "type": "screen",
+      "fails": [],
+      "warns": [
+        "Largest text is 22px. No element owns the screen. (Mark data-dense if this is deliberate.)"
+      ],
+      "facts": {
+        "os": "android",
+        "kind": "create",
+        "fonts": {
+          "Atkinson Hyperlegible Next": 9
+        },
+        "sizes": [
+          22,
+          21,
+          18,
+          17,
+          16
+        ],
+        "weights": [
+          "400",
+          "700"
+        ],
+        "leftEdges": 3,
+        "words": 21,
+        "headline": "22px, 1 words, 1 line(s)",
+        "accentHues": [
+          24,
+          48
+        ],
+        "cards": 5
+      }
+    },
+    {
+      "name": "f-urgent",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "state",
+        "fonts": {
+          "Atkinson Hyperlegible Next": 4
+        },
+        "sizes": [
+          60,
+          28,
+          24,
+          19
+        ],
+        "weights": [
+          "400",
+          "800"
+        ],
+        "leftEdges": 1,
+        "words": 26,
+        "headline": "60px, 2 words, 2 line(s)",
+        "accentHues": [
+          0
+        ],
+        "cards": 1
+      }
+    },
+    {
+      "name": "f-home-ios",
+      "type": "screen",
+      "fails": [],
+      "warns": [
+        "Largest text is 22px. No element owns the screen. (Mark data-dense if this is deliberate.)"
+      ],
+      "facts": {
+        "os": "ios",
+        "kind": "core",
+        "fonts": {
+          "Atkinson Hyperlegible Next": 12
+        },
+        "sizes": [
+          22,
+          21,
+          18,
+          17,
+          16
+        ],
+        "weights": [
+          "400",
+          "700"
+        ],
+        "leftEdges": 4,
+        "words": 35,
+        "headline": "22px, 2 words, 1 line(s)",
+        "accentHues": [
+          24,
+          48
+        ],
+        "cards": 5
+      }
+    }
+  ],
+  "exports": []
+}
