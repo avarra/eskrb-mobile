@@ -1,22 +1,47 @@
 import { Lexend_400Regular, Lexend_500Medium, Lexend_600SemiBold, Lexend_700Bold, useFonts } from '@expo-google-fonts/lexend';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { focusManager, QueryClientProvider } from '@tanstack/react-query';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import * as Notifications from 'expo-notifications';
 import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { AppState } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { Screen } from '@/components/screen';
 import { Text } from '@/components/text';
 import { db } from '@/data/db/client';
-import { queryClient } from '@/data/queries';
+import { device } from '@/data';
+import { setUnauthorizedHandler } from '@/data/http';
+import { keys, queryClient } from '@/data/queries';
 import { installNotificationHandler, urlFrom } from '@/lib/reminder';
 import { colors } from '@/theme/tokens';
 import migrations from '../../drizzle/migrations';
 
 SplashScreen.preventAutoHideAsync();
 installNotificationHandler();
+
+// Refetch when the app comes back to the foreground (React Native has no window focus).
+focusManager.setEventListener((setFocused) => {
+  const sub = AppState.addEventListener('change', (state) => setFocused(state === 'active'));
+  return () => sub.remove();
+});
+
+// A rejected token anywhere (revoked, expired) signs the patient out and returns to sign-in.
+let signingOut = false;
+setUnauthorizedHandler(() => {
+  if (signingOut) return;
+  signingOut = true;
+  device
+    .signOut()
+    .catch(() => {})
+    .finally(() => {
+      queryClient.clear();
+      queryClient.setQueryData(keys.session, false);
+      router.replace('/setup');
+      signingOut = false;
+    });
+});
 
 /** Tapping the daily reminder opens the check-in, whether the app was running or not. */
 function useNotificationRouting(ready: boolean) {

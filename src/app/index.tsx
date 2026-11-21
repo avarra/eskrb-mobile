@@ -9,9 +9,8 @@ import { PillButton } from '@/components/pill-button';
 import { ReminderSheet } from '@/components/reminder-sheet';
 import { Screen } from '@/components/screen';
 import { Text } from '@/components/text';
-import { STAFF } from '@/config';
 import { sl } from '@/copy/sl';
-import { useEpisode, useSetSetting, useSetting, useTimeline } from '@/data/queries';
+import { useEpisode, useSession, useSetSetting, useSetting, useSignOut, useTimeline } from '@/data/queries';
 import { longDate } from '@/domain/format';
 import { enableDailyReminder } from '@/lib/reminder';
 import { colors, size, space } from '@/theme/tokens';
@@ -19,7 +18,10 @@ import { colors, size, space } from '@/theme/tokens';
 const ASKED = 'notificationsAsked';
 
 export default function Home() {
-  const { data: me, isLoading } = useEpisode();
+  const session = useSession();
+  const signedIn = session.data === true;
+  const { data: me, isLoading, isError, refetch, isRefetching } = useEpisode(signedIn);
+  const signOut = useSignOut();
   const { data: timeline } = useTimeline(me?.episode.id);
   const asked = useSetting(ASKED);
   const setSetting = useSetSetting();
@@ -33,12 +35,32 @@ export default function Home() {
   }, []);
 
   const unread = useMemo(
-    () => timeline?.items.find((i) => i.kind === 'message' && i.message.fromUserId === STAFF.id && !i.message.readAt),
+    () => timeline?.items.find((i) => i.kind === 'message' && i.message.fromRole !== 'patient' && !i.message.readAt),
     [timeline],
   );
 
+  if (session.isLoading) return <Screen>{null}</Screen>;
+  if (!signedIn) return <Redirect href="/setup" />;
   if (isLoading) return <Screen>{null}</Screen>;
-  if (!me) return <Redirect href="/setup" />;
+  if (isError || !me) {
+    const copy = isError ? sl.offline : sl.noEpisode;
+    return (
+      <Screen>
+        <View style={{ flex: 1, justifyContent: 'center', gap: 16 }}>
+          <Text variant="question" accessibilityRole="header">
+            {copy.title}
+          </Text>
+          <Text variant="body" color={colors.ink2}>
+            {copy.body}
+          </Text>
+        </View>
+        <View style={{ gap: 12 }}>
+          <PillButton variant="solid" label={copy.retry} onPress={() => refetch()} busy={isRefetching} />
+          {!isError && <PillButton label={sl.noEpisode.signOut} onPress={() => signOut.mutate(undefined, { onSuccess: () => router.replace('/setup') })} />}
+        </View>
+      </Screen>
+    );
+  }
 
   const total = me.protocol.durationDays;
   const done = me.todayCheckInDone;
@@ -69,7 +91,7 @@ export default function Home() {
         </Text>
 
         {unread?.kind === 'message' && (
-          <MessageRow createdAt={unread.message.createdAt} onPress={() => router.push(`/message/${unread.message.id}`)} />
+          <MessageRow fromName={unread.message.fromName} createdAt={unread.message.createdAt} onPress={() => router.push(`/message/${unread.message.id}`)} />
         )}
 
         <View style={styles.grow} />

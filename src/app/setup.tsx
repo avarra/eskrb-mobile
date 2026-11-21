@@ -1,159 +1,106 @@
-import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { subDays } from 'date-fns';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Modal, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { DataScanner } from 'react-native-data-scanner';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { PillButton } from '@/components/pill-button';
 import { Screen } from '@/components/screen';
 import { Text } from '@/components/text';
 import { sl } from '@/copy/sl';
-import { kneeReplacement } from '@/data/protocol';
-import { useCreateEpisode } from '@/data/queries';
-import { isoDay } from '@/domain/day';
-import { fullDate } from '@/domain/format';
-import { colors, font, radius, size, space } from '@/theme/tokens';
+import { useSignIn } from '@/data/queries';
+import { colors, font, radius, size } from '@/theme/tokens';
 
-type Choice = 'today' | 'yesterday' | 'picked';
-
+/** Sign-in: the ward hands the patient an access code, typed or pasted here, or scanned as a QR code. */
 export default function Setup() {
-  const insets = useSafeAreaInsets();
-  const create = useCreateEpisode();
-  const [choice, setChoice] = useState<Choice | null>(null);
-  const [picked, setPicked] = useState<Date>(() => subDays(new Date(), 2));
-  const [iosPickerOpen, setIosPickerOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [nameFocused, setNameFocused] = useState(false);
+  const signIn = useSignIn();
+  const [code, setCode] = useState('');
+  const [focused, setFocused] = useState(false);
+  const [scanError, setScanError] = useState(false);
+  const canSubmit = code.trim().length > 0 && !signIn.isPending;
 
-  const today = new Date();
-  const minDate = subDays(today, kneeReplacement.durationDays);
-  const surgery = choice === 'today' ? today : choice === 'yesterday' ? subDays(today, 1) : choice === 'picked' ? picked : null;
-  const canStart = !!surgery && name.trim().length > 0;
+  const submit = () => {
+    if (!canSubmit) return;
+    signIn.mutate(code, { onSuccess: () => router.replace('/') });
+  };
 
-  const openPicker = () => {
-    if (Platform.OS === 'android') {
-      DateTimePickerAndroid.open({
-        value: picked,
-        mode: 'date',
-        maximumDate: today,
-        minimumDate: minDate,
-        onValueChange: (_e, date) => {
-          setPicked(date);
-          setChoice('picked');
-        },
-      });
-    } else {
-      setIosPickerOpen(true);
+  // The platform's own one-shot scanner (VisionKit on iOS, Google code scanner on Android); the QR holds the token.
+  const scan = async () => {
+    setScanError(false);
+    signIn.reset();
+    let value: string;
+    try {
+      value = (await DataScanner.scanBarcode({ targetFormats: ['qr'] })).value;
+    } catch (e) {
+      // Closing the scanner rejects too; only say something when scanning can't work here.
+      if (!/cancel/i.test(String(e))) setScanError(true);
+      return;
     }
+    signIn.mutate(value, { onSuccess: () => router.replace('/') });
   };
 
-  const start = () => {
-    if (!surgery || !canStart) return;
-    create.mutate(
-      { patientName: name.trim(), startDate: isoDay(surgery) },
-      { onSuccess: () => router.replace('/') },
-    );
-  };
+  const error = signIn.error
+    ? (sl.setup.errors[signIn.error.message] ?? sl.setup.errors.network)
+    : scanError
+      ? sl.setup.scanUnavailable
+      : null;
 
   return (
     <Screen>
-        <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-          <Text variant="question" accessibilityRole="header" style={{ marginTop: 28 }}>
-            {sl.setup.title}
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <Text variant="question" accessibilityRole="header" style={{ marginTop: 28 }}>
+          {sl.setup.title}
+        </Text>
+        <Text variant="body" color={colors.ink2} style={{ marginTop: 8 }}>
+          {sl.setup.hint}
+        </Text>
+
+        <Text variant="bodyStrong" style={{ marginTop: 32 }} nativeID="codeLabel">
+          {sl.setup.codeLabel}
+        </Text>
+        <TextInput
+          value={code}
+          onChangeText={(t) => {
+            setCode(t);
+            setScanError(false);
+            if (signIn.isError) signIn.reset();
+          }}
+          placeholder={sl.setup.codePlaceholder}
+          placeholderTextColor={colors.sheetInk2}
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete="off"
+          secureTextEntry
+          returnKeyType="go"
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          onSubmitEditing={submit}
+          accessibilityLabel={sl.setup.codeLabel}
+          accessibilityLabelledBy="codeLabel"
+          style={[styles.input, focused && styles.inputFocused]}
+        />
+        {error && (
+          <Text variant="body" color={colors.today} style={{ marginTop: 12 }} accessibilityLiveRegion="polite">
+            {error}
           </Text>
-          <Text variant="body" color={colors.ink2} style={{ marginTop: 8 }}>
-            {sl.setup.hint}
-          </Text>
+        )}
 
-          <View style={styles.choices} accessibilityRole="radiogroup">
-            <Option label={sl.setup.today} selected={choice === 'today'} onPress={() => setChoice('today')} />
-            <Option label={sl.setup.yesterday} selected={choice === 'yesterday'} onPress={() => setChoice('yesterday')} />
-            <Option
-              label={choice === 'picked' ? fullDate(picked) : sl.setup.pickDate}
-              selected={choice === 'picked'}
-              onPress={openPicker}
-            />
-          </View>
+        <PillButton label={sl.setup.scan} variant="tonal" onPress={scan} disabled={signIn.isPending} style={{ marginTop: 28 }} />
 
-          <Text variant="bodyStrong" style={{ marginTop: 32 }} nativeID="nameLabel">
-            {sl.setup.nameLabel}
-          </Text>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder={sl.setup.namePlaceholder}
-            placeholderTextColor={colors.sheetInk2}
-            autoCapitalize="words"
-            autoComplete="given-name"
-            textContentType="givenName"
-            returnKeyType="done"
-            onFocus={() => setNameFocused(true)}
-            onBlur={() => setNameFocused(false)}
-            onSubmitEditing={start}
-            accessibilityLabel={sl.setup.nameLabel}
-            accessibilityLabelledBy="nameLabel"
-            style={[styles.input, nameFocused && styles.inputFocused]}
-          />
-
-          <View style={{ flexGrow: 1, minHeight: 32 }} />
-          <PillButton
-            variant="solid"
-            label={sl.setup.start}
-            accessibilityLabel={sl.setup.startA11y}
-            onPress={start}
-            disabled={!canStart}
-            busy={create.isPending}
-          />
-        </ScrollView>
-
-      {Platform.OS === 'ios' && (
-        <Modal visible={iosPickerOpen} transparent animationType="slide" onRequestClose={() => setIosPickerOpen(false)}>
-          <View style={styles.backdrop}>
-            <View style={[styles.sheet, { paddingBottom: insets.bottom + space.l }]}>
-              <DateTimePicker
-                value={picked}
-                mode="date"
-                display="inline"
-                locale="sl-SI"
-                maximumDate={today}
-                minimumDate={minDate}
-                accentColor={colors.ground}
-                themeVariant="light"
-                onValueChange={(_e, date) => setPicked(date)}
-              />
-              <PillButton
-                variant="solid"
-                label={sl.setup.datePickerDone}
-                onPress={() => {
-                  setChoice('picked');
-                  setIosPickerOpen(false);
-                }}
-                style={{ backgroundColor: colors.ground }}
-                solidInk={colors.ink}
-              />
-            </View>
-          </View>
-        </Modal>
-      )}
+        <View style={{ flexGrow: 1, minHeight: 32 }} />
+        <PillButton
+          variant="solid"
+          label={sl.setup.signIn}
+          accessibilityLabel={sl.setup.signInA11y}
+          onPress={submit}
+          disabled={!canSubmit}
+          busy={signIn.isPending}
+        />
+      </ScrollView>
     </Screen>
   );
 }
 
-function Option({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
-  return (
-    <PillButton
-      label={label}
-      onPress={onPress}
-      variant={selected ? 'solid' : 'tonal'}
-      selected={selected}
-      accessibilityLabel={label}
-    />
-  );
-}
-
 const styles = StyleSheet.create({
-  choices: { gap: 12, marginTop: 28 },
   input: {
     marginTop: 10,
     minHeight: size.pill,
@@ -165,13 +112,4 @@ const styles = StyleSheet.create({
     color: colors.sheetInk,
   },
   inputFocused: { boxShadow: `inset 0px 0px 0px 3px ${colors.today}` },
-  backdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(12,33,69,0.45)' },
-  sheet: {
-    backgroundColor: colors.sheet,
-    borderTopLeftRadius: radius.sheet,
-    borderTopRightRadius: radius.sheet,
-    paddingHorizontal: space.l,
-    paddingTop: space.l,
-    gap: space.m,
-  },
 });

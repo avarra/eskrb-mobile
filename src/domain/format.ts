@@ -37,3 +37,9 @@ export function whenLine(iso: string, now: Date = new Date()): string {
 export function decimal(n: number, digits = 1): string {
   return n.toFixed(digits).replace('.', ',');
 }
+
+/** "Dr. Maja Zupan" → "MZ": first letters of the last two words, ignoring titles like "Dr." or "Sestra". */
+export function initials(name: string): string {
+  const words = name.split(/\s+/).filter((w) => w && !/\.$/.test(w) && !/^(sestra|dr|prim|doc|prof)$/i.test(w));
+  return words.slice(-2).map((w) => w[0]?.toUpperCase() ?? '').join('') || '·';
+}

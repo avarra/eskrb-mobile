@@ -3,24 +3,23 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Avatar } from '@/components/avatar';
 import { Icon } from '@/components/icon';
 import { Text } from '@/components/text';
-import { STAFF } from '@/config';
 import { sl } from '@/copy/sl';
-import { clock } from '@/domain/format';
+import { clock, initials } from '@/domain/format';
 import { colors, shadow } from '@/theme/tokens';
 
-/** "Sestra Petra · Vam je pisala ob 10.14" with the yellow unread dot. */
-export function MessageRow({ createdAt, onPress }: { createdAt: string; onPress: () => void }) {
+/** "Dr. Maja Zupan · Novo sporočilo ob 10.14" with the yellow unread dot. */
+export function MessageRow({ fromName, createdAt, onPress }: { fromName: string; createdAt: string; onPress: () => void }) {
   const time = clock(createdAt);
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={sl.home.unreadA11y(STAFF.shortName, time)}
+      accessibilityLabel={sl.home.unreadA11y(fromName, time)}
       style={({ pressed }) => [styles.row, pressed && { opacity: 0.85 }]}
     >
-      <Avatar initials={STAFF.initials} />
+      <Avatar initials={initials(fromName)} />
       <View style={styles.text}>
-        <Text variant="bodyStrong">{STAFF.shortName}</Text>
+        <Text variant="bodyStrong">{fromName}</Text>
         <Text variant="meta" color={colors.ink2} style={{ fontSize: 17 }}>
           {sl.home.wroteAt(time)}
         </Text>

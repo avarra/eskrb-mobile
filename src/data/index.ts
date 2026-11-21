@@ -1,9 +1,8 @@
-// The one place that picks the data implementation. When the REST API is ready, add
-// `rest-api.ts` implementing `Api` and change this line; screens stay as they are.
+// The one place that picks the data implementation.
 import type { Api } from '@/data/api';
-import { localApi, localDevice } from '@/data/local-api';
+import { remoteApi } from '@/data/remote-api';
 
-export const api: Api = localApi;
+export const api: Api = remoteApi;
 
-/** Device-only operations (setup, settings, debug). */
-export const device = localDevice;
+/** Device-only operations (sign-in, settings). */
+export { device } from '@/data/device';

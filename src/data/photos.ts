@@ -1,27 +1,19 @@
-import { Directory, File, Paths } from 'expo-file-system';
+import { File } from 'expo-file-system';
 
-import { uid } from '@/domain/day';
-
-/** Photos live in the app's document directory so they survive restarts; only the path goes in the DB. */
-export const photosDir = new Directory(Paths.document, 'photos');
-
-export async function savePhoto(sourceUri: string): Promise<string> {
-  if (!photosDir.exists) photosDir.create({ intermediates: true, idempotent: true });
-  const ext = /\.(png|heic|jpe?g)$/i.exec(sourceUri)?.[1]?.toLowerCase() ?? 'jpg';
-  const target = new File(photosDir, `${uid()}.${ext}`);
-  const source = new File(sourceUri);
-  await source.copy(target);
-  // Don't leave the picker's / camera's temporary copy of a wound photo lying around in caches.
-  if (/\/(tmp|Caches)\//.test(sourceUri)) {
-    try {
-      source.delete();
-    } catch {
-      // best effort
-    }
+/** Don't leave the picker's / camera's temporary copy of a wound photo lying around in caches. */
+export function deleteTempPhoto(uri: string): void {
+  if (!/\/(tmp|Caches|cache)\//i.test(uri)) return;
+  try {
+    new File(uri).delete();
+  } catch {
+    // best effort
   }
-  return target.uri;
 }
 
-export function deleteAllPhotos(): void {
-  if (photosDir.exists) photosDir.delete();
+/** File name and MIME type for a multipart upload, from the local file's extension. */
+export function photoPart(uri: string): { uri: string; name: string; type: string } {
+  const ext = /\.(png|heic|heif|webp|jpe?g)$/i.exec(uri)?.[1]?.toLowerCase() ?? 'jpg';
+  const type = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext}`;
+  return { uri, name: `photo.${ext}`, type };
 }
+

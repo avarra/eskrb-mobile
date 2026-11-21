@@ -1,5 +1,5 @@
-// The REST contract from PLAN-mobile.md, as types + Zod schemas.
-// Screens import ONLY from here (types) and `@/data/queries` (hooks). The implementation is chosen in `@/data/index`.
+// The REST contract of the eSkrb backend (https://eskrb-api.home.sync.si/openapi/v1.json), as the screens see it.
+// Screens import ONLY from here (types) and `@/data/queries` (hooks). `@/data/remote-api` maps server DTOs to these.
 import { z } from 'zod';
 
 export const answerValue = z.union([z.number(), z.string(), z.boolean()]);
@@ -8,12 +8,17 @@ export const answers = z.record(z.string(), answerValue);
 export type Answers = z.infer<typeof answers>;
 
 const questionBase = { id: z.string(), text: z.string() };
-export const question = z.discriminatedUnion('type', [
+const questionUnion = z.discriminatedUnion('type', [
   z.object({ ...questionBase, type: z.literal('scale'), min: z.number(), max: z.number() }),
   z.object({ ...questionBase, type: z.literal('number'), unit: z.string() }),
   z.object({ ...questionBase, type: z.literal('choice'), options: z.array(z.string()).min(1) }),
   z.object({ ...questionBase, type: z.literal('boolean') }),
 ]);
+/** The server sends every optional field, as null when unused (`min: null` on a choice). Drop the nulls first. */
+export const question = z.preprocess(
+  (v) => (v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).filter(([, x]) => x !== null)) : v),
+  questionUnion,
+);
 export type Question = z.infer<typeof question>;
 
 export const severity = z.enum(['attention', 'urgent']);
@@ -45,9 +50,6 @@ const isoDateTime = z.string().min(10);
 
 export const episode = z.object({
   id: z.string(),
-  patientId: z.string(),
-  patientName: z.string(),
-  protocolId: z.string(),
   startDate: isoDate,
   endDate: isoDate,
 });
@@ -55,13 +57,11 @@ export type Episode = z.infer<typeof episode>;
 
 export const checkIn = z.object({
   id: z.string(),
-  episodeId: z.string(),
-  date: isoDate,
+  date: isoDate.nullable(),
   answers,
-  authoredBy: z.string(),
   createdAt: isoDateTime,
-  reviewedAt: isoDateTime.nullable(),
-  reviewedBy: z.string().nullable(),
+  /** Staff have looked at it. */
+  reviewed: z.boolean(),
 });
 export type CheckIn = z.infer<typeof checkIn>;
 
@@ -70,44 +70,41 @@ export type LogSource = z.infer<typeof logSource>;
 
 export const log = z.object({
   id: z.string(),
-  episodeId: z.string(),
   type: z.enum(['text', 'photo']),
   source: logSource.nullable(),
   text: z.string().nullable(),
+  /** Server path (`/media/<id>`); it needs the bearer token, so render it through `mediaSource()`. */
   mediaUrl: z.string().nullable(),
-  extracted: answers,
-  authoredBy: z.string(),
   createdAt: isoDateTime,
-  reviewedAt: isoDateTime.nullable(),
+  reviewed: z.boolean(),
 });
 export type Log = z.infer<typeof log>;
 
 export const flag = z.object({
   id: z.string(),
-  episodeId: z.string(),
-  sourceType: z.enum(['checkin', 'log']),
-  sourceId: z.string(),
   ruleId: z.string(),
   severity,
   quote: z.string(),
-  resolvedAt: isoDateTime.nullable(),
 });
 export type Flag = z.infer<typeof flag>;
 
+export const role = z.enum(['patient', 'caretaker', 'staff', 'admin']);
+export type Role = z.infer<typeof role>;
+
 export const message = z.object({
   id: z.string(),
-  episodeId: z.string(),
-  fromUserId: z.string(),
   fromName: z.string(),
+  /** Anyone who is not the patient (or their caretaker) counts as the care team. */
+  fromRole: z.string(),
   body: z.string(),
   createdAt: isoDateTime,
-  /** Local addition: when the patient opened it. */
+  /** Kept on the phone: when the patient opened it. The server has no read state yet. */
   readAt: isoDateTime.nullable(),
-  /** Local addition: the check-in or log the message is about. */
-  refType: z.enum(['checkin', 'log']).nullable(),
-  refId: z.string().nullable(),
 });
 export type Message = z.infer<typeof message>;
+
+export const me = z.object({ id: z.string(), name: z.string(), role });
+export type Me = z.infer<typeof me>;
 
 export type MyEpisode = {
   episode: Episode;
@@ -134,16 +131,18 @@ export type NewLog = {
 
 /** Mirrors the REST endpoints the patient app uses. Swap the implementation, not the screens. */
 export interface Api {
-  /** GET /me/episode — null when the patient has no episode yet (first run). */
+  /** GET /me — also how a token is validated at sign-in. */
+  getMe(token?: string): Promise<Me>;
+  /** GET /me/episode — null when the patient has no active episode (404). */
   getMyEpisode(): Promise<MyEpisode | null>;
   /** POST /episodes/:id/checkins */
   postCheckIn(episodeId: string, answers: Answers): Promise<SubmitResult<CheckIn>>;
-  /** POST /episodes/:id/logs */
+  /** POST /episodes/:id/logs — text (JSON) and photo (multipart) are separate requests on the server. */
   postLog(episodeId: string, input: NewLog): Promise<SubmitResult<Log>>;
   /** GET /episodes/:id/timeline — newest first. */
   getTimeline(episodeId: string): Promise<Timeline>;
   /** POST /episodes/:id/messages */
   postMessage(episodeId: string, body: string): Promise<Message>;
-  /** Local stand-in until the server tracks read state. */
+  /** Stored on the phone until the server tracks read state. */
   markMessageRead(messageId: string): Promise<void>;
 }

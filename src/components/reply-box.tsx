@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
+import { Text } from '@/components/text';
 import { sl } from '@/copy/sl';
 import { usePostMessage } from '@/data/queries';
 import { colors, font, size } from '@/theme/tokens';
 
-/** "Odgovorite sestri Petri" + round send button, on a white sheet. */
+/** "Odgovorite ekipi" + round send button, on a white sheet. */
 export function ReplyBox({ episodeId, onSent }: { episodeId: string; onSent?: () => void }) {
   const [body, setBody] = useState('');
   const post = usePostMessage();
@@ -24,13 +25,14 @@ export function ReplyBox({ episodeId, onSent }: { episodeId: string; onSent?: ()
     );
   };
   return (
+    <View>
     <View style={styles.row}>
       <TextInput
         value={body}
         onChangeText={setBody}
-        placeholder={sl.reply.toPetra}
+        placeholder={sl.reply.toTeam}
         placeholderTextColor={colors.sheetInk2}
-        accessibilityLabel={sl.reply.toPetra}
+        accessibilityLabel={sl.reply.toTeam}
         multiline
         submitBehavior="blurAndSubmit"
         returnKeyType="send"
@@ -48,6 +50,12 @@ export function ReplyBox({ episodeId, onSent }: { episodeId: string; onSent?: ()
       >
         <Icon name="send" color={colors.ink} />
       </Pressable>
+    </View>
+    {post.isError && (
+      <Text variant="meta" color={colors.urgent} style={{ marginTop: 8 }} accessibilityLiveRegion="polite">
+        {sl.reply.error}
+      </Text>
+    )}
     </View>
   );
 }
