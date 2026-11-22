@@ -34,6 +34,8 @@ All patient-facing text is in Slovenian.
 
 **Demo video:** [watch on Google Drive](https://drive.google.com/file/d/1haiZQGL59Id-UbYqw2-wz5m2jY39M5Xc/view?usp=sharing)
 
+**Android build:** [download eskrb-android-demo.apk](https://github.com/avarra/eskrb-mobile/releases/download/v1.0.0/eskrb-android-demo.apk) and open it on an Android phone. You may need to allow installing apps from unknown sources.
+
 **Try it:** sign in with one of the demo accounts in [AUTH_CODES.md](AUTH_CODES.md). Scan the QR code from the sign-in screen or type the key.
 
 ## Stack
