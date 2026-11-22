@@ -64,6 +64,7 @@ export const sl = {
     scaleHint: 'Povlecite krog levo ali desno.',
     numberHint: 'Spremenite s tipkama minus in plus.',
     choiceHint: 'Izberite eno možnost.',
+    multichoiceHint: 'Izberite vse, kar velja.',
     photoHint: 'Fotografirajte ali izberite fotografijo iz galerije.',
     textHint: 'Napišite s svojimi besedami. Lahko tudi preskočite.',
     textPlaceholder: 'Na primer: koleno me bolj boli ponoči.',
@@ -79,15 +80,10 @@ export const sl = {
     increase: 'Povečaj',
     decrease: 'Zmanjšaj',
     error: 'Pregleda ni bilo mogoče shraniti. Poskusite znova.',
+    stopSending: 'Vaše odgovore pošiljamo ekipi.',
+    stopRetry: 'Pošlji znova',
+    stopCall: 'Pokličite 112',
   },
-  options: {
-    less: 'Manjša',
-    same: 'Enaka',
-    more: 'Večja',
-    dry: 'Suha',
-    red: 'Pordela',
-    discharge: 'Izcedek',
-  } as Record<string, string>,
   pain: {
     words: [
       { word: 'Ne boli', line: 'Bolečine ne čutite.' },
@@ -128,8 +124,8 @@ export const sl = {
     urgentTeam: 'Vaša ekipa na ortopediji je že obveščena.',
     urgentReasons: {
       calf: 'Bolečina in trdota v meči sta lahko znak krvnega strdka.',
-      calfPain: 'Bolečina in trdota v meči sta lahko znak krvnega strdka.',
-      breathing: 'Težko dihanje ali bolečina v prsih sta lahko znak krvnega strdka v pljučih.',
+      breathing: 'Nenadna zadihanost ali bolečina v prsih sta lahko znak krvnega strdka v pljučih.',
+      fainting: 'Omedlevica je lahko znak nujnega stanja.',
       fallback: 'Vaš odgovor kaže na znak, ki ga mora zdravnik pogledati takoj.',
     } as Record<string, string>,
     urgentBack: 'Nazaj na začetek',

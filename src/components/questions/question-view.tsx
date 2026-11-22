@@ -1,5 +1,6 @@
 import type { AnswerValue, Question } from '@/data/api';
 import { ChoicePills } from '@/components/questions/choice-pills';
+import { MultiChoicePills } from '@/components/questions/multi-choice-pills';
 import { NumberStepper } from '@/components/questions/number-stepper';
 import { PhotoQuestion } from '@/components/questions/photo-question';
 import { ScaleWedge } from '@/components/questions/scale-wedge';
@@ -8,7 +9,7 @@ import { sl } from '@/copy/sl';
 
 export const TEMPERATURE_START = 36.8;
 
-/** Pain is the 0–10 scale; every other scale (wellbeing) is neutral and must not borrow the pain colours. */
+/** Pain is the 0–10 scale; any other scale is neutral and must not borrow the pain colours. */
 export function isPain(q: Extract<Question, { type: 'scale' }>) {
   return q.id === 'pain';
 }
@@ -31,6 +32,8 @@ export function hintFor(q: Question): string {
     case 'choice':
     case 'boolean':
       return sl.checkin.choiceHint;
+    case 'multichoice':
+      return sl.checkin.multichoiceHint;
     case 'photo':
       return sl.checkin.photoHint;
     case 'text':
@@ -43,7 +46,7 @@ export function QuestionView({ question: q, value, onChange, onClear }: {
   question: Question;
   value: AnswerValue | undefined;
   onChange: (v: AnswerValue) => void;
-  /** Unanswer the question (removing a photo). */
+  /** Unanswer the question (removing a photo, deselecting the last option). */
   onClear: () => void;
 }) {
   switch (q.type) {
@@ -64,9 +67,19 @@ export function QuestionView({ question: q, value, onChange, onClear }: {
     case 'choice':
       return (
         <ChoicePills
-          options={q.options.map((o) => ({ value: o, label: sl.options[o] ?? o }))}
+          options={q.options.map((o) => ({ value: o, label: q.labels?.[o] ?? o }))}
           value={typeof value === 'string' ? value : undefined}
           onChange={onChange}
+        />
+      );
+    case 'multichoice':
+      return (
+        <MultiChoicePills
+          options={q.options.map((o) => ({ value: o, label: q.labels?.[o] ?? o }))}
+          exclusive={q.exclusiveOptions}
+          value={Array.isArray(value) ? value : undefined}
+          onChange={onChange}
+          onClear={onClear}
         />
       );
     case 'boolean':

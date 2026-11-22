@@ -14,6 +14,8 @@ type Props = {
   disabled?: boolean;
   busy?: boolean;
   selected?: boolean;
+  /** `checkbox` for multi-select options (announced as checked / not checked). */
+  role?: 'button' | 'checkbox';
   /** Text colour for the solid variant (blue by default, red on the urgent screen). */
   solidInk?: string;
   style?: ViewStyle;
@@ -30,6 +32,7 @@ export function PillButton({
   disabled,
   busy,
   selected,
+  role = 'button',
   solidInk = colors.ground,
   style,
 }: Props) {
@@ -39,10 +42,10 @@ export function PillButton({
     <Pressable
       onPress={onPress}
       disabled={disabled || busy}
-      accessibilityRole="button"
+      accessibilityRole={role}
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled: !!(disabled || busy), busy: !!busy, selected }}
+      accessibilityState={{ disabled: !!(disabled || busy), busy: !!busy, ...(role === 'checkbox' ? { checked: !!selected } : { selected }) }}
       style={({ pressed }) => [
         styles.base,
         solid ? styles.solid : variant === 'outline' ? styles.outline : styles.tonal,

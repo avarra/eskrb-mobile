@@ -17,14 +17,14 @@ import { colors, font, size, space } from '@/theme/tokens';
 
 /** Driven only by `patientAction`. */
 export default function Result() {
-  const params = useLocalSearchParams<{ action?: string; kind?: string; reason?: string }>();
+  const params = useLocalSearchParams<{ action?: string; kind?: string; reason?: string; alertTitle?: string; alertText?: string }>();
   const parsed = patientAction.safeParse(params.action);
   const action = parsed.success ? parsed.data : 'none';
   const kind = params.kind === 'log' ? 'log' : 'checkin';
 
   switch (action) {
     case 'call_112':
-      return <Urgent reason={params.reason ?? ''} />;
+      return <Urgent reason={params.reason ?? ''} alertTitle={params.alertTitle || null} alertText={params.alertText || null} />;
     case 'contact_team':
       return <TeamNotified />;
     case 'none':
@@ -94,17 +94,19 @@ function TeamNotified() {
   );
 }
 
-function Urgent({ reason }: { reason: string }) {
-  const text = sl.result.urgentReasons[reason] ?? sl.result.urgentReasons.fallback;
+/** `alertTitle`/`alertText` are the protocol's safety-stop copy (`immediateAlert`) when the check-in stopped early. */
+function Urgent({ reason, alertTitle, alertText }: { reason: string; alertTitle: string | null; alertText: string | null }) {
+  const title = alertTitle ?? sl.result.urgentTitle;
+  const text = alertText ?? sl.result.urgentReasons[reason] ?? sl.result.urgentReasons.fallback;
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    AccessibilityInfo.announceForAccessibility(`${sl.result.urgentTitle} ${text}`);
-  }, [text]);
+    AccessibilityInfo.announceForAccessibility(`${title} ${text}`);
+  }, [title, text]);
   return (
     <Screen variant="urgent">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
         <Text variant="urgentTitle" accessibilityRole="header" style={{ marginTop: 28 }}>
-          {sl.result.urgentTitle}
+          {title}
         </Text>
         <Text variant="quote" style={{ fontSize: 22, lineHeight: 31, marginTop: 16 }}>
           {text}

@@ -2,7 +2,8 @@
 // Screens import ONLY from here (types) and `@/data/queries` (hooks). `@/data/remote-api` maps server DTOs to these.
 import { z } from 'zod';
 
-export const answerValue = z.union([z.number(), z.string(), z.boolean()]);
+/** A multichoice answer is a non-empty array of option ids. */
+export const answerValue = z.union([z.number(), z.string(), z.boolean(), z.array(z.string())]);
 export type AnswerValue = z.infer<typeof answerValue>;
 export const answers = z.record(z.string(), answerValue);
 export type Answers = z.infer<typeof answers>;
@@ -10,11 +11,49 @@ export type Answers = z.infer<typeof answers>;
 /** The OpenAPI spec allows int32 fields as strings ("42"). */
 const int = z.coerce.number().int();
 
-const questionBase = { id: z.string(), text: z.string(), required: z.boolean().optional() };
+export const conditionOp = z.enum(['==', '!=', '>', '>=', '<', '<=', 'in']);
+export type ConditionOp = z.infer<typeof conditionOp>;
+
+/** `showIf`: ask the question only when this holds on an earlier answer. */
+export const condition = z.object({
+  question: z.string(),
+  op: conditionOp,
+  value: z.union([z.number(), z.string(), z.boolean(), z.array(z.string())]),
+});
+export type Condition = z.infer<typeof condition>;
+
+/** Safety stop: picking any of `options` ends the check-in at once (submit what we have, show the result). */
+export const immediateAlert = z.object({
+  options: z.array(z.string()).nullish().transform((v) => v ?? []),
+  title: z.string(),
+  text: z.string(),
+  action: z.string().nullish(),
+});
+export type ImmediateAlert = z.infer<typeof immediateAlert>;
+
+const questionBase = {
+  id: z.string(),
+  text: z.string(),
+  required: z.boolean().optional(),
+  showIf: condition.optional(),
+  /** When set, the question gets a skip button with this text; a skipped question has no answer. */
+  skipLabel: z.string().optional(),
+};
+/** Display text per option id (Slovenian, may contain emoji). */
+const labels = z.record(z.string(), z.string()).optional();
 const questionUnion = z.discriminatedUnion('type', [
   z.object({ ...questionBase, type: z.literal('scale'), min: int, max: int }),
   z.object({ ...questionBase, type: z.literal('number'), unit: z.string().default('') }),
-  z.object({ ...questionBase, type: z.literal('choice'), options: z.array(z.string()).min(1) }),
+  z.object({ ...questionBase, type: z.literal('choice'), options: z.array(z.string()).min(1), labels, immediateAlert: immediateAlert.optional() }),
+  z.object({
+    ...questionBase,
+    type: z.literal('multichoice'),
+    options: z.array(z.string()).min(1),
+    labels,
+    /** Options that can't be combined with any other ("none"). */
+    exclusiveOptions: z.array(z.string()).default([]),
+    immediateAlert: immediateAlert.optional(),
+  }),
   z.object({ ...questionBase, type: z.literal('boolean') }),
   /** Free text (non-blank, max 2000 chars); the server reads it to fill structured answers the patient left empty. */
   z.object({ ...questionBase, type: z.literal('text') }),
@@ -34,7 +73,7 @@ export type Severity = z.infer<typeof severity>;
 export const rule = z.object({
   id: z.string(),
   field: z.string(),
-  op: z.enum(['>=', '>', '<=', '<', '==', '!=']),
+  op: z.enum(['>=', '>', '<=', '<', '==', '!=', 'in']),
   value: answerValue,
   severity,
 });
