@@ -11,6 +11,10 @@ describe('pushRoute', () => {
     expect(pushRoute({ kind: 'message', episodeId: 'e1' })).toBe('/notes');
   });
 
+  it('opens the buddy screen for a buddy message or cheer', () => {
+    expect(pushRoute({ kind: 'buddy' })).toBe('/buddy');
+  });
+
   it('opens home for an unknown kind', () => {
     expect(pushRoute({ kind: 'something_new' })).toBe('/');
   });

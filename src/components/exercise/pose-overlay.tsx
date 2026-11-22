@@ -7,7 +7,7 @@ import { colors, font } from '@/theme/tokens';
 
 type Props = {
   /**
-   * The 33 landmarks already in preview coordinates (VisionCamera did rotation, mirroring and crop),
+   * The 33 landmarks already in preview coordinates (aspect-fill crop and front-camera mirroring applied),
    * smoothed; null where not visible.
    */
   points: readonly FilteredPoint[];

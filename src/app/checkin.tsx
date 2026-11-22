@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
+import { CareNoteCard } from '@/components/care-note-card';
 import { PillButton } from '@/components/pill-button';
 import { hintFor, initialAnswer, isPain, QuestionView } from '@/components/questions/question-view';
 import { Screen } from '@/components/screen';
@@ -13,6 +14,9 @@ import { errorDetail } from '@/data/http';
 import { useEpisode, usePostCheckIn } from '@/data/queries';
 import { splitPhotoAnswers } from '@/domain/check-in';
 import { colors, heatFor } from '@/theme/tokens';
+
+/** The question the backend adds to the protocol when the episode has medication notes. */
+const MEDS_QUESTION = 'medsTaken';
 
 /** One question per screen, rendered from the protocol JSON. */
 export default function CheckIn() {
@@ -26,6 +30,7 @@ export default function CheckIn() {
   const q = questions[step];
   const total = questions.length;
   const last = step === total - 1;
+  const meds = me.notes.filter((n) => n.kind === 'medication');
   const value: AnswerValue | undefined = answers[q.id] ?? initialAnswer(q);
   const answered = value !== undefined;
   // The server rejects a check-in that leaves out a `required: true` question; only explicitly optional ones may be skipped.
@@ -58,10 +63,13 @@ export default function CheckIn() {
   return (
     <Screen wash={wash}>
       <TopBar onBack={back} right={sl.common.stepOf(step + 1, total)} rightA11y={`Vprašanje ${step + 1} od ${total}`} />
+      {/* Keeps a text question's field and the Next button above the keyboard. */}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView
         style={{ marginHorizontal: -24 }}
         contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24 }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         bounces={false}
         key={q.id}
       >
@@ -71,6 +79,17 @@ export default function CheckIn() {
         <Text variant="body" color={colors.ink2}>
           {hintFor(q)}
         </Text>
+        {/* The server adds `medsTaken` only when the episode has medication notes: show them so the patient can check. */}
+        {q.id === MEDS_QUESTION && meds.length > 0 && (
+          <View style={{ gap: 10, marginTop: 16 }}>
+            <Text variant="meta" color={colors.ink2}>
+              {sl.instructions.medsHint}
+            </Text>
+            {meds.map((n) => (
+              <CareNoteCard key={n.id} note={n} />
+            ))}
+          </View>
+        )}
         <View style={{ flexGrow: 1, minHeight: 24 }} />
         <QuestionView
           question={q}
@@ -92,6 +111,7 @@ export default function CheckIn() {
         disabled={!answered && !canSkip}
         busy={post.isPending}
       />
+      </KeyboardAvoidingView>
     </Screen>
   );
 }

@@ -79,7 +79,10 @@ final class HybridPoseDetector: HybridPoseDetectorSpec {
   private static func toUpright(x: Double, y: Double, orientation: CameraOrientation, mirrored: Bool)
     -> (Double, Double)
   {
-    var (ux, uy): (Double, Double)
+    // Un-mirror in raw buffer space *before* rotating. Mirroring after a quarter turn flips the wrong
+    // axis, which left front-camera poses rotated 180° (feet on top, sides swapped).
+    let x = mirrored ? 1 - x : x
+    let (ux, uy): (Double, Double)
     switch orientation {
     case .up: (ux, uy) = (x, y)
     case .down: (ux, uy) = (1 - x, 1 - y)
@@ -88,7 +91,6 @@ final class HybridPoseDetector: HybridPoseDetectorSpec {
     // Content rotated right (CW) → rotate counter-clockwise.
     case .right: (ux, uy) = (y, 1 - x)
     }
-    if mirrored { ux = 1 - ux }
     return (ux, uy)
   }
 

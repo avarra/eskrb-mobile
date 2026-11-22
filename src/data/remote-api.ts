@@ -4,6 +4,9 @@ import { z } from 'zod';
 
 import {
   answers,
+  buddyMessage,
+  buddyState,
+  careNotes,
   episode as episodeSchema,
   MAX_LOG_PHOTOS,
   flag,
@@ -34,6 +37,9 @@ const episodeDto = z.object({
   dayNumber: z.coerce.number().int(),
   checkInDoneToday: z.boolean(),
   protocol: protocolSchema,
+  /** Older servers don't send these. */
+  unreadMessages: z.coerce.number().int().nonnegative().optional().default(0),
+  notes: careNotes.optional().default([]),
 });
 
 const checkInResultDto = z.object({
@@ -86,6 +92,8 @@ const timelineDto = z.array(
   }),
 );
 
+const buddyMessageDto = buddyMessage.extend({ createdAt: utc });
+
 const severityRank = { none: 0, contact_team: 1, call_112: 2 } as const;
 
 async function readTimes(ids: string[]): Promise<Map<string, string>> {
@@ -119,6 +127,9 @@ export const remoteApi: Api = {
       protocol: dto.protocol,
       dayNumber: Math.min(dto.protocol.durationDays, Math.max(1, dto.dayNumber)),
       todayCheckInDone: dto.checkInDoneToday,
+      unreadMessages: dto.unreadMessages,
+      // Server timestamps are UTC, often without the `Z`.
+      notes: dto.notes.map((n) => ({ ...n, createdAt: utc.parse(n.createdAt), updatedAt: utc.parse(n.updatedAt) })),
     };
   },
 
@@ -219,7 +230,38 @@ export const remoteApi: Api = {
     return { ...dto, readAt: dto.createdAt };
   },
 
-  async markMessageRead(messageId) {
+  async markMessageRead(episodeId, messageId) {
     await db.insert(messageReads).values({ messageId, readAt: nowIso() }).onConflictDoNothing();
+    // The server only tracks "read up to now", which resets its unread count (and the staff dashboard's view of it).
+    await request(`/episodes/${episodeId}/read`, { method: 'POST' });
+  },
+
+  async getBuddy() {
+    return buddyState.parse(await request('/me/buddy'));
+  },
+
+  async getBuddyMessages(after) {
+    const q = after ? `?after=${encodeURIComponent(after)}` : '';
+    return z.array(buddyMessageDto).parse(await request(`/me/buddy/messages${q}`));
+  },
+
+  async sendBuddyText(text, source) {
+    return buddyMessageDto.parse(await request('/me/buddy/messages', { method: 'POST', body: { text: text.trim(), source } }));
+  },
+
+  async sendCheer(cheerId) {
+    return buddyMessageDto.parse(await request('/me/buddy/cheers', { method: 'POST', body: { cheerId } }));
+  },
+
+  async markBuddyRead() {
+    await request('/me/buddy/read', { method: 'POST' });
+  },
+
+  async reportBuddyMessage(messageId) {
+    await request(`/me/buddy/messages/${encodeURIComponent(messageId)}/report`, { method: 'POST' });
+  },
+
+  async leaveBuddy() {
+    await request('/me/buddy', { method: 'DELETE' });
   },
 };

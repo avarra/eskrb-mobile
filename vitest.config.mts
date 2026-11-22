@@ -3,5 +3,6 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
+  define: { __DEV__: false },
   test: { include: ['src/**/*.test.ts'] },
 });

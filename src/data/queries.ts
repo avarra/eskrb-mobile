@@ -1,9 +1,11 @@
 import { MutationCache, QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useIsFocused } from 'expo-router';
 
-import type { NewCheckIn, NewLog } from '@/data/api';
+import type { BuddyMessage, BuddyState, Cheer, LogSource, NewCheckIn, NewLog } from '@/data/api';
 import { normalizeToken } from '@/data/auth';
 import { ApiError } from '@/data/http';
 import { api, device } from '@/data';
+import { mergeMessages, PENDING_PREFIX } from '@/domain/buddy';
 import { unregisterPushToken } from '@/lib/push';
 
 export const queryClient = new QueryClient({
@@ -26,6 +28,8 @@ export const keys = {
   episode: ['episode'] as const,
   timeline: (episodeId: string) => ['timeline', episodeId] as const,
   setting: (key: string) => ['setting', key] as const,
+  buddy: ['buddy'] as const,
+  buddyMessages: ['buddy', 'messages'] as const,
 };
 
 /** Whether a token is stored. Local, so never stale. */
@@ -83,7 +87,10 @@ export function usePostMessage() {
 
 export function useMarkMessageRead() {
   const invalidate = useInvalidateAll();
-  return useMutation({ mutationFn: (messageId: string) => api.markMessageRead(messageId), onSuccess: invalidate });
+  return useMutation({
+    mutationFn: ({ episodeId, messageId }: { episodeId: string; messageId: string }) => api.markMessageRead(episodeId, messageId),
+    onSuccess: invalidate,
+  });
 }
 
 export type SignInError = 'invalid' | 'notPatient' | 'network';
@@ -134,4 +141,129 @@ export function useSetting(key: string) {
 export function useSetSetting() {
   const invalidate = useInvalidateAll();
   return useMutation({ mutationFn: ({ key, value }: { key: string; value: string }) => device.setSetting(key, value), onSuccess: invalidate });
+}
+
+// ---- Recovery buddy ----
+
+/** Polling while the screen is in front: home every 30 s, the buddy screen every 20 s. No websockets (docs/buddy.md). */
+export const BUDDY_POLL = { home: 30_000, screen: 20_000, thread: 5_000 } as const;
+
+/** GET /me/buddy, refetched every `poll` ms, but only while the calling screen is focused. */
+export function useBuddy({ poll, enabled = true }: { poll: number; enabled?: boolean }) {
+  const focused = useIsFocused();
+  return useQuery({
+    queryKey: keys.buddy,
+    queryFn: () => api.getBuddy(),
+    enabled,
+    staleTime: 10_000,
+    refetchInterval: focused ? poll : false,
+  });
+}
+
+/** The `after` cursor: the newest message the server has confirmed. */
+function lastConfirmed(messages: BuddyMessage[] | undefined): string | undefined {
+  if (!messages) return undefined;
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i];
+    if (m && !m.id.startsWith(PENDING_PREFIX)) return m.createdAt;
+  }
+  return undefined;
+}
+
+/**
+ * The thread, oldest first. The first fetch loads it all; later fetches ask only for newer messages and merge them in.
+ * `poll` (ms) only while the screen is focused; pass false for a one-off read (the home row).
+ */
+export function useBuddyMessages({ enabled, poll }: { enabled: boolean; poll: number | false }) {
+  const qc = useQueryClient();
+  const focused = useIsFocused();
+  return useQuery({
+    queryKey: keys.buddyMessages,
+    queryFn: async () => {
+      const current = qc.getQueryData<BuddyMessage[]>(keys.buddyMessages);
+      const after = lastConfirmed(current);
+      if (!current || !after) return api.getBuddyMessages();
+      return mergeMessages(current, await api.getBuddyMessages(after));
+    },
+    enabled,
+    staleTime: 3_000,
+    refetchInterval: focused && poll ? poll : false,
+  });
+}
+
+function useInvalidateBuddy() {
+  const qc = useQueryClient();
+  return () => qc.invalidateQueries({ queryKey: keys.buddy, exact: true });
+}
+
+/** Puts a sent message into the cached thread (replacing its optimistic copy). */
+function useAppendMessage() {
+  const qc = useQueryClient();
+  return (sent: BuddyMessage, replaceId?: string) =>
+    qc.setQueryData<BuddyMessage[]>(keys.buddyMessages, (old = []) =>
+      mergeMessages(
+        old.filter((m) => m.id !== replaceId),
+        [sent],
+      ),
+    );
+}
+
+export function useSendBuddyText() {
+  const invalidate = useInvalidateBuddy();
+  const append = useAppendMessage();
+  return useMutation({
+    mutationFn: ({ text, source }: { text: string; source: LogSource }) => api.sendBuddyText(text, source),
+    onSuccess: (sent) => {
+      append(sent);
+      return invalidate();
+    },
+  });
+}
+
+/** Sends a cheer. It lands in the thread at once (the landing animation needs that) and is rolled back on error. */
+export function useSendCheer() {
+  const qc = useQueryClient();
+  const invalidate = useInvalidateBuddy();
+  const append = useAppendMessage();
+  return useMutation({
+    mutationFn: (c: Cheer) => api.sendCheer(c.id),
+    onMutate: async (c) => {
+      await qc.cancelQueries({ queryKey: keys.buddyMessages });
+      const tempId = `${PENDING_PREFIX}${c.id}:${Date.now()}`;
+      const optimistic: BuddyMessage = { id: tempId, fromMe: true, kind: 'cheer', text: c.text, source: null, createdAt: new Date().toISOString() };
+      qc.setQueryData<BuddyMessage[]>(keys.buddyMessages, (old = []) => [...old, optimistic]);
+      return { tempId };
+    },
+    onError: (_e, _c, ctx) => {
+      if (ctx) qc.setQueryData<BuddyMessage[]>(keys.buddyMessages, (old = []) => old.filter((m) => m.id !== ctx.tempId));
+    },
+    onSuccess: (sent, _c, ctx) => {
+      append(sent, ctx?.tempId);
+      return invalidate();
+    },
+  });
+}
+
+export function useMarkBuddyRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.markBuddyRead(),
+    onSuccess: () => {
+      qc.setQueryData<BuddyState>(keys.buddy, (old) => (old ? { ...old, unread: 0 } : old));
+      return qc.invalidateQueries({ queryKey: keys.buddy, exact: true });
+    },
+  });
+}
+
+export function useReportBuddyMessage() {
+  const invalidate = useInvalidateBuddy();
+  return useMutation({ mutationFn: (messageId: string) => api.reportBuddyMessage(messageId), onSuccess: invalidate });
+}
+
+export function useLeaveBuddy() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.leaveBuddy(),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.buddy }),
+  });
 }

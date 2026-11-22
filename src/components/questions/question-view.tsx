@@ -3,6 +3,7 @@ import { ChoicePills } from '@/components/questions/choice-pills';
 import { NumberStepper } from '@/components/questions/number-stepper';
 import { PhotoQuestion } from '@/components/questions/photo-question';
 import { ScaleWedge } from '@/components/questions/scale-wedge';
+import { TextQuestion } from '@/components/questions/text-question';
 import { sl } from '@/copy/sl';
 
 export const TEMPERATURE_START = 36.8;
@@ -32,6 +33,8 @@ export function hintFor(q: Question): string {
       return sl.checkin.choiceHint;
     case 'photo':
       return sl.checkin.photoHint;
+    case 'text':
+      return sl.checkin.textHint;
   }
 }
 
@@ -79,5 +82,7 @@ export function QuestionView({ question: q, value, onChange, onClear }: {
       );
     case 'photo':
       return <PhotoQuestion value={typeof value === 'string' ? value : undefined} onChange={onChange} onClear={onClear} label={q.text} />;
+    case 'text':
+      return <TextQuestion value={typeof value === 'string' ? value : undefined} onChange={onChange} onClear={onClear} label={q.text} />;
   }
 }

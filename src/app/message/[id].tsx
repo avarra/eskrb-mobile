@@ -23,11 +23,13 @@ export default function MessageView() {
   const markRead = useMarkMessageRead();
 
   const msg = timeline?.items.find((i): i is Extract<TimelineItem, { kind: 'message' }> => i.kind === 'message' && i.message.id === id)?.message;
-  const unread = !!msg && !msg.readAt;
+  // Also when only the server still counts it unread (read here before read state synced, or on another phone).
+  const unread = !!msg && (!msg.readAt || (me?.unreadMessages ?? 0) > 0);
+  const episodeId = me?.episode.id;
   const { mutate: mark } = markRead;
   useEffect(() => {
-    if (unread && id) mark(id);
-  }, [unread, id, mark]);
+    if (unread && id && episodeId) mark({ episodeId, messageId: id });
+  }, [unread, id, episodeId, mark]);
 
   const when = msg ? relativeWhen(msg.createdAt) : null;
 

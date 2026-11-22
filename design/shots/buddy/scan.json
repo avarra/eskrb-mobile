@@ -1,0 +1,464 @@
+{
+  "surfaces": [
+    {
+      "name": "home-buddy",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "core",
+        "fonts": {
+          "Lexend": 11
+        },
+        "sizes": [
+          34,
+          32,
+          21,
+          20,
+          18,
+          17
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 3,
+        "words": 31,
+        "headline": "34px, 4 words, 1 line(s)",
+        "accentHues": [
+          216,
+          48
+        ],
+        "cards": 4
+      }
+    },
+    {
+      "name": "home-buddy-ios",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "ios",
+        "kind": "core",
+        "fonts": {
+          "Lexend": 11
+        },
+        "sizes": [
+          34,
+          32,
+          21,
+          20,
+          18,
+          17
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 4,
+        "words": 31,
+        "headline": "34px, 4 words, 1 line(s)",
+        "accentHues": [
+          216,
+          48
+        ],
+        "cards": 4
+      }
+    },
+    {
+      "name": "buddy",
+      "type": "screen",
+      "fails": [
+        "Cards nested inside cards x6. Group with space, not boxes."
+      ],
+      "warns": [
+        "8 card containers on one screen. Fine if they are one collection of objects; sections should be space and hairlines (finish.md §3)."
+      ],
+      "facts": {
+        "os": "android",
+        "kind": "core",
+        "fonts": {
+          "Lexend": 14
+        },
+        "sizes": [
+          34,
+          30,
+          22,
+          21,
+          20,
+          18,
+          16
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 5,
+        "words": 26,
+        "headline": "30px, 1 words, 1 line(s)",
+        "accentHues": [
+          216
+        ],
+        "cards": 8
+      }
+    },
+    {
+      "name": "buddy-ios",
+      "type": "screen",
+      "fails": [
+        "Cards nested inside cards x5. Group with space, not boxes."
+      ],
+      "warns": [],
+      "facts": {
+        "os": "ios",
+        "kind": "core",
+        "fonts": {
+          "Lexend": 14
+        },
+        "sizes": [
+          34,
+          30,
+          22,
+          21,
+          20,
+          18,
+          16
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 5,
+        "words": 29,
+        "headline": "30px, 1 words, 1 line(s)",
+        "accentHues": [
+          216
+        ],
+        "cards": 7
+      }
+    },
+    {
+      "name": "cheers",
+      "type": "screen",
+      "fails": [
+        "Cards nested inside cards x5. Group with space, not boxes."
+      ],
+      "warns": [
+        "Only 3 text sizes across 11 text elements. Hierarchy is flat."
+      ],
+      "facts": {
+        "os": "android",
+        "kind": "create",
+        "fonts": {
+          "Lexend": 11
+        },
+        "sizes": [
+          28,
+          21,
+          18
+        ],
+        "weights": [
+          "400",
+          "600"
+        ],
+        "leftEdges": 2,
+        "words": 42,
+        "headline": "28px, 2 words, 1 line(s)",
+        "accentHues": [
+          216
+        ],
+        "cards": 6
+      }
+    },
+    {
+      "name": "signature-1",
+      "type": "screen",
+      "fails": [
+        "Cards nested inside cards x5. Group with space, not boxes."
+      ],
+      "warns": [
+        "Only 3 text sizes across 11 text elements. Hierarchy is flat."
+      ],
+      "facts": {
+        "os": "android",
+        "kind": "state",
+        "fonts": {
+          "Lexend": 11
+        },
+        "sizes": [
+          28,
+          21,
+          18
+        ],
+        "weights": [
+          "400",
+          "600"
+        ],
+        "leftEdges": 3,
+        "words": 42,
+        "headline": "28px, 2 words, 1 line(s)",
+        "accentHues": [
+          216
+        ],
+        "cards": 6
+      }
+    },
+    {
+      "name": "signature-2",
+      "type": "screen",
+      "fails": [
+        "Cards nested inside cards x6. Group with space, not boxes."
+      ],
+      "warns": [
+        "6 distinct left edges in the left third. Align to fewer verticals.",
+        "8 card containers on one screen. Fine if they are one collection of objects; sections should be space and hairlines (finish.md §3)."
+      ],
+      "facts": {
+        "os": "android",
+        "kind": "state",
+        "fonts": {
+          "Lexend": 15
+        },
+        "sizes": [
+          34,
+          30,
+          22,
+          21,
+          20,
+          18,
+          16
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 6,
+        "words": 33,
+        "headline": "34px, 1 words, 1 line(s)",
+        "accentHues": [
+          216
+        ],
+        "cards": 8
+      }
+    },
+    {
+      "name": "buddy-nudge",
+      "type": "screen",
+      "fails": [
+        "Cards nested inside cards x5. Group with space, not boxes."
+      ],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "state",
+        "fonts": {
+          "Lexend": 13
+        },
+        "sizes": [
+          34,
+          30,
+          22,
+          21,
+          20,
+          18,
+          16
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 3,
+        "words": 29,
+        "headline": "34px, 1 words, 1 line(s)",
+        "accentHues": [
+          216,
+          48
+        ],
+        "cards": 7
+      }
+    },
+    {
+      "name": "buddy-write",
+      "type": "screen",
+      "fails": [
+        "Cards nested inside cards x3. Group with space, not boxes."
+      ],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "create",
+        "fonts": {
+          "Lexend": 13
+        },
+        "sizes": [
+          34,
+          30,
+          22,
+          21,
+          20,
+          18,
+          16
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 5,
+        "words": 26,
+        "headline": "34px, 1 words, 1 line(s)",
+        "accentHues": [
+          216
+        ],
+        "cards": 4
+      }
+    },
+    {
+      "name": "buddy-report",
+      "type": "screen",
+      "fails": [
+        "Cards nested inside cards x2. Group with space, not boxes."
+      ],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "state",
+        "fonts": {
+          "Lexend": 5
+        },
+        "sizes": [
+          28,
+          21,
+          20,
+          18
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600"
+        ],
+        "leftEdges": 1,
+        "words": 24,
+        "headline": "28px, 5 words, 2 line(s)",
+        "accentHues": [
+          216
+        ],
+        "cards": 3
+      }
+    },
+    {
+      "name": "buddy-leave",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "settings",
+        "fonts": {
+          "Lexend": 4
+        },
+        "sizes": [
+          28,
+          21,
+          20
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600"
+        ],
+        "leftEdges": 1,
+        "words": 34,
+        "headline": "28px, 4 words, 2 line(s)",
+        "accentHues": [
+          216
+        ],
+        "cards": 2
+      }
+    },
+    {
+      "name": "buddy-ended",
+      "type": "screen",
+      "fails": [
+        "Cards nested inside cards x3. Group with space, not boxes."
+      ],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "state",
+        "fonts": {
+          "Lexend": 12
+        },
+        "sizes": [
+          34,
+          30,
+          22,
+          21,
+          20,
+          18,
+          16
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 4,
+        "words": 25,
+        "headline": "34px, 1 words, 1 line(s)",
+        "accentHues": [
+          216
+        ],
+        "cards": 5
+      }
+    },
+    {
+      "name": "buddy-none",
+      "type": "screen",
+      "fails": [],
+      "warns": [],
+      "facts": {
+        "os": "android",
+        "kind": "empty",
+        "fonts": {
+          "Lexend": 5
+        },
+        "sizes": [
+          40,
+          34,
+          21,
+          20
+        ],
+        "weights": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ],
+        "leftEdges": 1,
+        "words": 27,
+        "headline": "40px, 1 words, 1 line(s)",
+        "accentHues": [
+          216
+        ],
+        "cards": 1
+      }
+    }
+  ],
+  "exports": []
+}

@@ -6,9 +6,7 @@ import { createPoseDetector } from 'react-native-pose-detector';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Camera,
-  type CameraRef,
   CommonResolutions,
-  type Point,
   useCameraDevice,
   useCameraPermission,
   useFrameOutput,
@@ -26,6 +24,7 @@ import { exercises, type ExerciseId } from '@/domain/exercises/catalog';
 import { isVisible } from '@/domain/exercises/geometry';
 import { createPointFilter, type FilteredPoint } from '@/domain/exercises/one-euro';
 import type { Pose, Side } from '@/domain/exercises/pose';
+import { uprightToView } from '@/domain/exercises/preview-map';
 import { createTracker, type TrackerState } from '@/domain/exercises/trackers';
 import { colors, space } from '@/theme/tokens';
 
@@ -69,7 +68,6 @@ function LiveTracking({ exerciseId }: { exerciseId: ExerciseId }) {
   const frontDevice = useCameraDevice('front');
   const backDevice = useCameraDevice('back');
   const device = position === 'front' ? (frontDevice ?? backDevice) : (backDevice ?? frontDevice);
-  const cameraRef = useRef<CameraRef>(null);
 
   const tracker = useMemo(() => createTracker(exerciseId), [exerciseId]);
   const trackerState = useRef<TrackerState>(tracker.initial);
@@ -104,7 +102,7 @@ function LiveTracking({ exerciseId }: { exerciseId: ExerciseId }) {
     }
   }, [state]);
 
-  const onPose = (next: Pose | null, cameraPoints: Point[]) => {
+  const onPose = (next: Pose | null) => {
     const t = performance.now();
     let smoothed: Pose | undefined;
     let view: FilteredPoint[] = [];
@@ -122,19 +120,13 @@ function LiveTracking({ exerciseId }: { exerciseId: ExerciseId }) {
           return f ? { ...l, x: f.x, y: f.y } : l;
         }),
       };
-      // VisionCamera maps camera points onto the preview: rotation, mirroring and crop included.
-      const camera = cameraRef.current;
-      if (camera) {
-        try {
-          const raw = cameraPoints.map((p, i) => {
-            const v = camera.convertCameraPointToViewPoint(p);
-            return { x: v.x, y: v.y, visible: visible[i] };
-          });
-          view = viewFilter.apply(raw, t);
-        } catch {
-          // Preview not ready yet; skip drawing this frame.
-        }
-      }
+      // Upright image pixels → preview points (aspect-fill, mirrored for the front camera).
+      const image = { width: next.width, height: next.height };
+      const raw = next.landmarks.map((l, i) => ({
+        ...uprightToView(l, image, window, position === 'front'),
+        visible: visible[i],
+      }));
+      view = viewFilter.apply(raw, t);
     }
     // No person this frame: leave the filters alone; they restart by themselves after a long gap.
     const s = tracker.step(trackerState.current, smoothed, t);
@@ -157,11 +149,7 @@ function LiveTracking({ exerciseId }: { exerciseId: ExerciseId }) {
       'worklet';
       try {
         const detected = detector.detect(frame);
-        // Frame → camera coordinates must happen while the frame is alive; JS finishes the mapping.
-        const cameraPoints = detected
-          ? detected.landmarks.map((l) => frame.convertFramePointToCameraPoint({ x: l.frameX, y: l.frameY }))
-          : [];
-        scheduleOnRN(onPose, detected ?? null, cameraPoints);
+        scheduleOnRN(onPose, detected ?? null);
       } catch (e) {
         scheduleOnRN(onError, e instanceof Error ? e.message : String(e));
       } finally {
@@ -192,7 +180,6 @@ function LiveTracking({ exerciseId }: { exerciseId: ExerciseId }) {
     <View style={styles.root}>
       {/* Bias the session toward the frame output so preview and frames share an aspect ratio (overlay alignment). */}
       <Camera
-        ref={cameraRef}
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={isFocused}

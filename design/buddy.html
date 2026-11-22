@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<title>eSkrb — kolega (buddy)</title>
+<link rel="stylesheet" href="kit/device.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=block">
+<style>
+  /* Tokens and base components copied from mockup.html (unchanged). Buddy additions are marked NEW. */
+  :root{
+    --ground:#1652C4; --ink:#FFFFFF; --ink2:#D9E6FF; --tonal:rgba(255,255,255,.14);
+    --today:#FFD45C; --sheet:#FFFFFF; --sheet-ink:#0C2145; --sheet-ink2:#3B5683; --sheet-fill:#EBF1FD;
+    --hairline:#E2EAF7; --reviewed:#0F7A5C;
+    /* NEW: buddy roles, all derived from existing values */
+    --bubble-mine:var(--ground);         /* my messages: ground blue, white ink */
+    --bubble-theirs:var(--sheet-fill);   /* buddy messages: sheet fill, sheet ink */
+    --cheer-line:#C9D8F5;                /* outline of a cheer bubble */
+  }
+  .label{flex-basis:100%;font:700 28px/1.2 var(--sf);color:#222;margin:24px 0 -24px}
+  .label small{display:block;font:400 17px/1.4 var(--sf);color:#555;margin-top:4px;max-width:1100px}
+  .wrap{position:absolute;inset:0;display:flex;flex-direction:column;padding:calc(var(--safe-top) + 8px) 24px calc(var(--safe-bottom) + 16px)}
+  .grow{flex:1}
+  svg.i{width:26px;height:26px;flex:none;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .row{display:flex;align-items:center;gap:12px}
+
+  .E{background:radial-gradient(130% 55% at 50% 0%,rgba(255,255,255,.10) 0%,transparent 70%),var(--ground);color:var(--ink)}
+  .E *{font-family:Lexend,var(--gsf)}
+  .E .date{font-weight:400;font-size:20px;line-height:1.3;color:var(--ink2);margin-top:16px}
+  .E .day{font-weight:600;font-size:34px;line-height:1.1;margin-top:6px;letter-spacing:-.01em}
+  .E .top{display:flex;align-items:center;justify-content:space-between;min-height:56px;font-weight:500;font-size:20px}
+  .E .meta{font-weight:400;font-size:18px;line-height:1.35;color:var(--ink2)}
+  .E .pill{display:flex;align-items:center;justify-content:center;gap:12px;min-height:68px;border-radius:34px;font-weight:500;font-size:21px;box-shadow:inset 0 0 0 2.5px rgba(255,255,255,.85)}
+  .E .solid{background:#fff;color:var(--ground);box-shadow:none;font-weight:600}
+  .E .tonal{background:var(--tonal);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),0 12px 30px -16px rgba(0,0,0,.5)}
+  .E .orb{border-radius:50%;color:var(--ground);margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;background:radial-gradient(120% 100% at 50% 0%,#FFFFFF 0%,#F6F4F1 70%,#EAE6E2 100%)}
+  .E .orb b{font-weight:600;font-size:32px;line-height:1.1;letter-spacing:-.01em}
+  .E .orb span{font-weight:400;font-size:18px;line-height:1.3;color:var(--sheet-ink2)}
+  .E .ava{width:48px;height:48px;border-radius:50%;background:linear-gradient(160deg,#F6D9BE,#E2B48C);color:#4A2A12;display:grid;place-items:center;font-weight:700;font-size:18px;flex:none}
+  .E .udot{width:12px;height:12px;border-radius:50%;background:var(--today);flex:none}
+  .E .msgrow{display:flex;align-items:center;gap:14px;min-height:76px;padding:0 16px 0 14px;border-radius:38px;margin-top:22px}
+  .E .msgrow b{display:block;font-weight:600;font-size:20px;line-height:1.25}
+  .E .msgrow span{font-weight:400;font-size:17px;color:var(--ink2)}
+  .E .ringwrap{position:relative;width:300px;height:300px;margin:0 auto}
+  .E .ringwrap svg{position:absolute;inset:0}
+  .E .ringwrap .orb{position:absolute;left:50%;top:50%;width:208px;height:208px;margin:-104px 0 0 -104px;box-shadow:0 30px 60px -24px rgba(0,0,0,.6),inset 0 -6px 12px rgba(11,74,82,.12),inset 0 2px 0 #fff}
+  .E .ringcap{text-align:center;font-weight:400;font-size:18px;color:var(--ink2);margin-top:4px}
+  .E .link{text-align:center;font-weight:500;font-size:18px;text-decoration:underline;text-decoration-color:rgba(255,255,255,.5);min-height:48px;display:grid;place-items:center}
+  .E .sheet{background:var(--sheet);color:var(--sheet-ink);border-radius:32px 32px 0 0;margin:0 -24px calc(-1 * var(--safe-bottom) - 16px);padding:8px 24px calc(var(--safe-bottom) + 16px);flex:1;display:flex;flex-direction:column;min-height:0}
+  .E .sheet .meta{color:var(--sheet-ink2)}
+  .E .halo{box-shadow:0 0 0 14px rgba(255,255,255,.12),0 30px 50px -20px rgba(0,0,0,.5)}
+
+  /* NEW: buddy avatar. White disc + blue initial, so a peer never looks like the nurse (peach). */
+  .E .bava{width:48px;height:48px;border-radius:50%;background:radial-gradient(120% 100% at 50% 0%,#fff,#EEF2FA);color:var(--ground);display:grid;place-items:center;font-weight:700;font-size:20px;flex:none;box-shadow:0 8px 18px -10px rgba(0,0,0,.55),inset 0 -2px 4px rgba(22,82,196,.10)}
+  .E .bava.lg{width:72px;height:72px;font-size:30px}
+  .E .bava.dim{opacity:.6}
+
+  /* NEW: the pair of today-dots (signature). Yellow = today still open (same owner as the day ring), white = done. */
+  .E .pair{display:flex;align-items:center;gap:14px;min-height:60px;padding:0 20px;border-radius:30px;margin-top:18px}
+  .E .dots{position:relative;display:flex;align-items:center;gap:18px;flex:none}
+  .E .dots::before{content:"";position:absolute;left:8px;right:8px;top:50%;height:2px;margin-top:-1px;background:rgba(255,255,255,.45)}
+  .E .dots i{position:relative;width:16px;height:16px;border-radius:50%;background:#fff}
+  .E .dots i.open{background:var(--today);box-shadow:0 0 0 3px var(--ground)}
+  .E .dots i.pop{box-shadow:0 0 0 3px var(--ground),0 0 0 9px rgba(255,255,255,.28)}
+  .E .pair span{font-weight:400;font-size:18px;line-height:1.3}
+
+  /* NEW: thread */
+  .E .thread{flex:1;min-height:0;overflow:hidden;-webkit-mask-image:linear-gradient(transparent 0,#000 28px);display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding-top:12px}
+  .E .when{align-self:center;font-weight:400;font-size:16px;color:var(--sheet-ink2);margin:6px 0 0}
+  .E .b{max-width:82%;padding:14px 18px;border-radius:24px;font-weight:400;font-size:20px;line-height:1.4}
+  .E .b.them{align-self:flex-start;background:var(--bubble-theirs);color:var(--sheet-ink);border-bottom-left-radius:8px}
+  .E .b.me{align-self:flex-end;background:var(--bubble-mine);color:#fff;border-bottom-right-radius:8px}
+  .E .b.cheer{font-size:22px;font-weight:500;background:#fff;color:var(--sheet-ink);box-shadow:inset 0 0 0 2.5px var(--cheer-line)}
+  .E .b.cheer.me{background:#fff;color:var(--ground);box-shadow:inset 0 0 0 2.5px var(--ground)}
+  .E .b small{display:block;font-weight:500;font-size:16px;letter-spacing:.02em;color:var(--sheet-ink2);margin-bottom:2px}
+  .E .b.cheer.me small{color:var(--ground)}
+  .E .b.reported{box-shadow:inset 0 0 0 3px var(--today)}
+  .E .b.land{box-shadow:inset 0 0 0 2.5px var(--ground),0 0 0 8px rgba(22,82,196,.12)}
+
+  /* NEW: safety line, 18px, links to the team message screen */
+  .E .safety{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1.5px solid var(--hairline);margin-top:12px;font-weight:500;font-size:18px;color:var(--sheet-ink)}
+  .E .safety span{flex:1;text-decoration:underline;text-decoration-color:#B9C9E8}
+  .E .safety svg{width:22px;height:22px;color:var(--sheet-ink2)}
+
+  /* NEW: composer */
+  .E .compose{display:flex;flex-direction:column;gap:12px;padding-top:4px}
+  .E .in{height:64px;border-radius:32px;background:var(--sheet-fill);display:flex;align-items:center;padding:0 8px 0 22px;font-weight:400;font-size:20px;color:var(--sheet-ink2)}
+  .E .in .mic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;color:var(--ground);margin-left:auto;background:#fff;box-shadow:0 4px 10px -6px rgba(12,33,69,.4)}
+  .E .btns{display:flex;gap:12px}
+  .E .btns>*{flex:1;min-height:64px;border-radius:32px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:600;font-size:21px}
+  .E .greet{background:var(--sheet-fill);color:var(--ground)}
+  .E .go{background:var(--ground);color:#fff}
+  .E .go.off{opacity:.5}
+
+  /* NEW: bottom sheet over the buddy screen */
+  .E .scrim{position:absolute;inset:0;background:rgba(6,18,44,.55)}
+  .E .bsheet{position:absolute;left:0;right:0;bottom:0;background:#fff;color:var(--sheet-ink);border-radius:32px 32px 0 0;padding:10px 24px calc(var(--safe-bottom) + 16px);box-shadow:0 -20px 40px -20px rgba(0,0,0,.4)}
+  .E .grab{width:44px;height:5px;border-radius:3px;background:#C9D3E6;margin:0 auto 10px}
+  .E .bsheet h2{margin:0;font-weight:600;font-size:28px;line-height:1.2;letter-spacing:-.01em}
+  .E .bsheet .meta{color:var(--sheet-ink2)}
+  .E .x{width:48px;height:48px;border-radius:50%;background:var(--sheet-fill);display:grid;place-items:center;color:var(--sheet-ink);flex:none}
+  .E .opt{display:block;padding:14px 20px;border-radius:28px;background:var(--sheet-fill);margin-top:10px}
+  .E .opt b{display:block;font-weight:600;font-size:21px;line-height:1.3;color:var(--ground)}
+  .E .opt span{display:block;font-weight:400;font-size:18px;line-height:1.35;color:var(--sheet-ink2);margin-top:2px}
+  .E .opt.press{background:var(--ground)}
+  .E .opt.press b,.E .opt.press span{color:#fff}
+  .E .own{display:flex;align-items:center;justify-content:center;gap:12px;min-height:64px;border-radius:32px;box-shadow:inset 0 0 0 2.5px var(--ground);color:var(--ground);font-weight:600;font-size:21px;margin-top:16px}
+  .E .quoteb{background:var(--sheet-fill);border-radius:24px;padding:16px 20px;font-size:20px;line-height:1.4;margin:14px 0 6px}
+  .E .solidb{display:flex;align-items:center;justify-content:center;min-height:64px;border-radius:32px;background:var(--ground);color:#fff;font-weight:600;font-size:21px;margin-top:16px}
+  .E .ghost{display:flex;align-items:center;justify-content:center;min-height:56px;font-weight:500;font-size:20px;color:var(--sheet-ink);margin-top:6px}
+
+  /* NEW: in-app nudge card on blue (after 17.00, client-side only) */
+  .E .nudge{border-radius:28px;padding:18px 20px 16px;margin-top:16px}
+  .E .nudge p{margin:0 0 14px;font-weight:400;font-size:20px;line-height:1.4}
+  .E .nudge .pill{min-height:60px;border-radius:30px}
+
+  /* NEW: writing state */
+  .E .field{border-radius:28px;background:#fff;padding:16px 20px;box-shadow:inset 0 0 0 3px var(--today),0 0 0 1.5px var(--hairline)}
+  .E .field .q{font-size:22px;line-height:1.4;margin-top:6px}
+  .E .caret{display:inline-block;width:3px;height:26px;background:var(--ground);vertical-align:-5px;margin-left:2px}
+  .E .listen{width:84px;height:84px;border-radius:50%;background:var(--ground);color:#fff;display:grid;place-items:center;flex:none;box-shadow:0 0 0 10px rgba(22,82,196,.14),0 0 0 22px rgba(22,82,196,.07)}
+
+  .E .endcard{border-radius:28px;padding:18px 20px;margin-top:16px}
+  .E .endcard b{display:block;font-weight:600;font-size:21px;line-height:1.3}
+  .E .endcard span{display:block;font-weight:400;font-size:18px;line-height:1.35;color:var(--ink2);margin-top:4px}
+  .E .empty-dots{position:relative;display:flex;gap:56px;justify-content:center;align-items:center;margin:0 auto}
+  .E .empty-dots::before{content:"";position:absolute;left:96px;right:96px;top:50%;border-top:3px dashed rgba(255,255,255,.5)}
+  .E .empty-dots i.me{display:grid;place-items:center;color:var(--ground);font-style:normal;font-weight:700;font-size:40px}
+  .E .empty-dots i{width:96px;height:96px;border-radius:50%;background:radial-gradient(120% 100% at 50% 0%,#fff,#EEF2FA);box-shadow:0 30px 50px -24px rgba(0,0,0,.6)}
+  .E .empty-dots i.q{background:transparent;box-shadow:inset 0 0 0 3px rgba(255,255,255,.5);border:0;outline:3px dashed rgba(255,255,255,.5);outline-offset:-3px}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+  <symbol id="back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="send" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></symbol>
+  <symbol id="more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></symbol>
+  <symbol id="wave" viewBox="0 0 24 24"><path d="M7 11V6.5a1.5 1.5 0 0 1 3 0V11M10 10V4.5a1.5 1.5 0 0 1 3 0V10M13 10V5.5a1.5 1.5 0 0 1 3 0V12M7 11l-.6-1.4a1.6 1.6 0 0 0-2.9 1.3L6 16a6 6 0 0 0 5.5 4h.5a6 6 0 0 0 6-6V8.5a1.5 1.5 0 0 0-3 0"/></symbol>
+  <symbol id="cross" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/></symbol>
+  <symbol id="kbd" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/></symbol>
+</svg>
+
+<div class="label">Kolega (buddy) <small>New screens only, built from the existing tokens and components. Viewer: Ivanka Kos, day 4. Buddy: Marija, day 6. Yellow keeps its one job (today / unread); the buddy avatar is a white disc so it never reads as the nurse.</small></div>
+
+<!-- 1 HOME WITH BUDDY ROW (entry point; appears only when paired) -->
+<section class="screen E" data-os="android" data-name="home-buddy" data-kind="core" data-pair="home-buddy" data-time="16:20" data-chrome="light">
+  <div class="wrap">
+    <div class="date">Sobota, 21. november</div>
+    <div class="day">Dan 4 od 42</div>
+    <div class="msgrow tonal"><div class="bava">M</div><div class="grow"><b data-ugc>Marija</b><span>Nov pozdrav ob 16.05</span></div><i class="udot"></i><svg class="i"><use href="#chev"/></svg></div>
+    <div class="grow"></div>
+    <div class="ringwrap"><svg viewBox="0 0 340 340" data-ring="4" data-done></svg><div class="orb"><b>Pregled je<br>oddan</b><span>Hvala, do jutri.</span></div></div>
+    <div class="ringcap">Vsaka pika je en dan okrevanja.</div>
+    <div class="link">Vsi zapisi</div>
+    <div class="grow"></div>
+    <div class="pill tonal">Vaje za koleno</div>
+    <div class="pill tonal" style="margin-top:12px"><svg class="i"><use href="#mic"/></svg>Dodaj zapis</div>
+  </div>
+</section>
+
+<section class="screen E" data-name="home-buddy-ios" data-kind="core" data-pair="home-buddy" data-time="16:20" data-chrome="light">
+  <div class="wrap">
+    <div class="date">Sobota, 21. november</div>
+    <div class="day">Dan 4 od 42</div>
+    <div class="msgrow tonal"><div class="bava">M</div><div class="grow"><b data-ugc>Marija</b><span>Nov pozdrav ob 16.05</span></div><i class="udot"></i><svg class="i"><use href="#chev"/></svg></div>
+    <div class="grow"></div>
+    <div class="ringwrap"><svg viewBox="0 0 340 340" data-ring="4" data-done></svg><div class="orb"><b>Pregled je<br>oddan</b><span>Hvala, do jutri.</span></div></div>
+    <div class="ringcap">Vsaka pika je en dan okrevanja.</div>
+    <div class="link">Vsi zapisi</div>
+    <div class="grow"></div>
+    <div class="pill tonal">Vaje za koleno</div>
+    <div class="pill tonal" style="margin-top:12px"><svg class="i"><use href="#mic"/></svg>Dodaj zapis</div>
+  </div>
+</section>
+
+<!-- 2 BUDDY SCREEN (core) -->
+<section class="screen E" data-os="android" data-name="buddy" data-kind="core" data-pair="buddy" data-time="16:21" data-chrome="light" data-home="dark">
+  <div class="wrap">
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span><span class="row" aria-label="Več možnosti" style="width:48px;height:48px;justify-content:center"><svg class="i"><use href="#more"/></svg></span></div>
+    <div class="row" style="gap:16px;margin-top:6px"><div class="bava lg">M</div><div><div class="day" data-ugc style="margin:0">Marija</div><div class="meta">Dan 6 · 3 dni zapored</div></div></div>
+    <div class="pair tonal"><div class="dots"><i></i><i></i></div><span>Oba pregleda oddana.</span></div>
+    <div style="height:18px"></div>
+    <div class="sheet">
+      <div class="thread" data-scrolls>
+                <div class="b them" data-ugc>Danes sem prvič šla po stopnicah brez ograje. Počasi, a gre.</div>
+        <div class="b me" data-ugc>Lepo. Jaz še vedno z berglami, ampak koleno manj peče.</div>
+        <div class="when">Danes ob 16.05</div>
+        <div class="b them cheer"><small>Pozdrav</small>Bravo za današnji pregled.</div>
+      </div>
+      <div class="safety"><span>Zdravstvene težave? Pišite ekipi.</span><svg class="i"><use href="#chev"/></svg></div>
+      <div class="compose">
+        <div class="in">Napišite Mariji<span class="mic"><svg class="i"><use href="#mic"/></svg></span></div>
+        <div class="btns"><div class="greet"><svg class="i"><use href="#wave"/></svg>Pozdrav</div><div class="go off">Pošlji</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="screen E" data-name="buddy-ios" data-kind="core" data-pair="buddy" data-time="16:21" data-chrome="light" data-home="dark">
+  <div class="wrap">
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span><span class="row" aria-label="Več možnosti" style="width:48px;height:48px;justify-content:center"><svg class="i"><use href="#more"/></svg></span></div>
+    <div class="row" style="gap:16px;margin-top:6px"><div class="bava lg">M</div><div><div class="day" data-ugc style="margin:0">Marija</div><div class="meta">Dan 6 · 3 dni zapored</div></div></div>
+    <div class="pair tonal"><div class="dots"><i></i><i></i></div><span>Oba pregleda oddana.</span></div>
+    <div style="height:18px"></div>
+    <div class="sheet">
+      <div class="thread" data-scrolls>
+                <div class="when">Včeraj ob 18.10</div>
+        <div class="b me" data-ugc>Lepo. Jaz še vedno z berglami, ampak koleno manj peče.</div>
+        <div class="when">Danes ob 16.05</div>
+        <div class="b them cheer"><small>Pozdrav</small>Bravo za današnji pregled.</div>
+      </div>
+      <div class="safety"><span>Zdravstvene težave? Pišite ekipi.</span><svg class="i"><use href="#chev"/></svg></div>
+      <div class="compose">
+        <div class="in">Napišite Mariji<span class="mic"><svg class="i"><use href="#mic"/></svg></span></div>
+        <div class="btns"><div class="greet"><svg class="i"><use href="#wave"/></svg>Pozdrav</div><div class="go off">Pošlji</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 CHEER SHEET ("Pozdrav") -->
+<section class="screen E" data-os="android" data-name="cheers" data-kind="create" data-time="16:22" data-chrome="light" data-home="dark">
+  <div class="wrap" data-behind>
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span></div>
+    <div class="row" style="gap:16px;margin-top:6px"><div class="bava lg">M</div><div><div class="day" style="margin:0">Marija</div><div class="meta">Dan 6 · 3 dni zapored</div></div></div>
+  </div>
+  <div class="scrim"></div>
+  <div class="bsheet">
+    <div class="grab"></div>
+    <div class="row" style="justify-content:space-between"><h2>Pošljite pozdrav</h2><span class="x" aria-label="Zapri"><svg class="i"><use href="#close"/></svg></span></div>
+    <div class="meta" style="margin-top:4px">Marija prejme besedilo v narekovajih.</div>
+    <div class="opt"><b>Čestitajte za 3 dni zapored</b><span>»3 dni zapored, bravo.«</span></div>
+    <div class="opt"><b>Čestitajte za pregled</b><span>»Bravo za današnji pregled.«</span></div>
+    <div class="opt"><b>Držim pesti</b><span>»Držim pesti.«</span></div>
+    <div class="opt"><b>Do jutri</b><span>»Do jutri.«</span></div>
+    <div class="own"><svg class="i"><use href="#kbd"/></svg>Napišite svoje sporočilo</div>
+  </div>
+</section>
+
+<!-- 4 SIGNATURE: the cheer lands -->
+<section class="screen E" data-os="android" data-name="signature-1" data-kind="state" data-time="16:22" data-chrome="light" data-home="dark">
+  <div class="wrap" data-behind>
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span></div>
+    <div class="row" style="gap:16px;margin-top:6px"><div class="bava lg">M</div><div><div class="day" style="margin:0">Marija</div><div class="meta">Dan 6 · 3 dni zapored</div></div></div>
+  </div>
+  <div class="scrim"></div>
+  <div class="bsheet">
+    <div class="grab"></div>
+    <div class="row" style="justify-content:space-between"><h2>Pošljite pozdrav</h2><span class="x"><svg class="i"><use href="#close"/></svg></span></div>
+    <div class="meta" style="margin-top:4px">Marija prejme besedilo v narekovajih.</div>
+    <div class="opt press" style="transform:scale(.97)"><b>Čestitajte za 3 dni zapored</b><span>»3 dni zapored, bravo.«</span></div>
+    <div class="opt"><b>Čestitajte za pregled</b><span>»Bravo za današnji pregled.«</span></div>
+    <div class="opt"><b>Držim pesti</b><span>»Držim pesti.«</span></div>
+    <div class="opt"><b>Do jutri</b><span>»Do jutri.«</span></div>
+    <div class="own"><svg class="i"><use href="#kbd"/></svg>Napišite svoje sporočilo</div>
+  </div>
+</section>
+
+<section class="screen E" data-os="android" data-name="signature-2" data-kind="state" data-time="16:22" data-chrome="light" data-home="dark">
+  <div class="wrap">
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span><span class="row" style="width:48px;height:48px;justify-content:center"><svg class="i"><use href="#more"/></svg></span></div>
+    <div class="row" style="gap:16px;margin-top:6px"><div class="bava lg">M</div><div><div class="day" style="margin:0">Marija</div><div class="meta">Dan 6 · 3 dni zapored</div></div></div>
+    <div class="pair tonal"><div class="dots"><i></i><i></i></div><span>Oba pregleda oddana.</span></div>
+    <div style="height:18px"></div>
+    <div class="sheet">
+      <div class="thread" data-scrolls>
+        <div class="b me" data-ugc>Lepo. Jaz še vedno z berglami, ampak koleno manj peče.</div>
+        <div class="when">Danes ob 16.05</div>
+        <div class="b them cheer"><small>Pozdrav</small>Bravo za današnji pregled.</div>
+        <div class="b me cheer land"><small>Pozdrav · poslano</small>3 dni zapored, bravo.</div>
+      </div>
+      <div class="safety"><span>Zdravstvene težave? Pišite ekipi.</span><svg class="i"><use href="#chev"/></svg></div>
+      <div class="compose">
+        <div class="in">Napišite Mariji<span class="mic"><svg class="i"><use href="#mic"/></svg></span></div>
+        <div class="btns"><div class="greet"><svg class="i"><use href="#wave"/></svg>Pozdrav</div><div class="go off">Pošlji</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 BUDDY HAS NOT CHECKED IN (after 17.00): quiet nudge card -->
+<section class="screen E" data-os="android" data-name="buddy-nudge" data-kind="state" data-time="18:20" data-chrome="light" data-home="dark">
+  <div class="wrap">
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span><span class="row" style="width:48px;height:48px;justify-content:center"><svg class="i"><use href="#more"/></svg></span></div>
+    <div class="row" style="gap:16px;margin-top:6px"><div class="bava lg">M</div><div><div class="day" style="margin:0">Marija</div><div class="meta">Dan 6</div></div></div>
+    <div class="nudge tonal">
+      <p class="row" style="gap:16px;align-items:flex-start"><span class="dots" style="margin-top:8px"><i></i><i class="open"></i></span><span>Marija: današnji pregled še ni oddan. Pošljete prijazen opomnik?</span></p>
+      <div class="pill solid">Spomnite na pregled</div>
+    </div>
+    <div style="height:18px"></div>
+    <div class="sheet">
+      <div class="thread" data-scrolls>
+        <div class="when">Četrtek ob 17.40</div>
+        <div class="b them" data-ugc>Hvala za pozdrav. Danes je bil težek dan.</div>
+        <div class="b me cheer"><small>Pozdrav</small>Držim pesti.</div>
+      </div>
+      <div class="safety"><span>Zdravstvene težave? Pišite ekipi.</span><svg class="i"><use href="#chev"/></svg></div>
+      <div class="compose">
+        <div class="btns"><div class="greet"><svg class="i"><use href="#wave"/></svg>Pozdrav</div><div class="go" style="background:var(--sheet-fill);color:var(--ground)"><svg class="i"><use href="#kbd"/></svg>Napiši</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 WRITING / DICTATING A CUSTOM MESSAGE -->
+<section class="screen E" data-os="android" data-name="buddy-write" data-kind="create" data-time="16:24" data-chrome="light" data-home="dark">
+  <div class="wrap">
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span></div>
+    <div class="row" style="gap:16px;margin-top:6px"><div class="bava lg">M</div><div><div class="day" style="margin:0">Marija</div><div class="meta">Dan 6 · 3 dni zapored</div></div></div>
+    <div style="height:18px"></div>
+    <div class="sheet">
+      <div class="thread" data-scrolls>
+        <div class="when">Danes ob 16.05</div>
+        <div class="b them cheer"><small>Pozdrav</small>Bravo za današnji pregled.</div>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <div class="row" style="justify-content:space-between"><span class="meta">Narekovano. Besedilo lahko popravite.</span><span class="meta">71/300</span></div>
+        <div class="q" data-ugc>Hvala, Marija. Danes je bilo lažje, šla sem do pošte in nazaj.<span class="caret"></span></div>
+      </div>
+      <div class="row" style="gap:16px;margin-top:16px">
+        <div class="listen" aria-label="Ustavi narekovanje"><svg class="i" style="width:34px;height:34px"><use href="#mic"/></svg></div>
+        <div class="grow"><div style="font-weight:600;font-size:21px">Poslušam …</div><div class="meta">Tapnite za konec.</div></div>
+      </div>
+      <div class="solidb" style="margin-top:20px">Pošlji</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 REPORT A MESSAGE (long-press a bubble) -->
+<section class="screen E" data-os="android" data-name="buddy-report" data-kind="state" data-time="16:30" data-chrome="light" data-home="dark">
+  <div class="wrap" data-behind>
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span></div>
+    <div class="row" style="gap:16px;margin-top:6px"><div class="bava lg">M</div><div><div class="day" style="margin:0">Marija</div><div class="meta">Dan 6 · 3 dni zapored</div></div></div>
+  </div>
+  <div class="scrim"></div>
+  <div class="bsheet">
+    <div class="grab"></div>
+    <h2>Opozorite ekipo na to sporočilo?</h2>
+    <div class="quoteb" data-ugc>Jaz sem tablete za bolečino kar nehala jemati, ti tudi kar probaj.</div>
+    <div class="meta">Ekipa ga bo prebrala. Opozorilo vidi samo ekipa.</div>
+    <div class="solidb">Opozori ekipo</div>
+    <div class="ghost">Prekliči</div>
+  </div>
+</section>
+
+<!-- 8 MORE MENU: leave the pair -->
+<section class="screen E" data-os="android" data-name="buddy-leave" data-kind="settings" data-time="16:31" data-chrome="light" data-home="dark">
+  <div class="wrap" data-behind>
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span></div>
+    <div class="row" style="gap:16px;margin-top:6px"><div class="bava lg">M</div><div><div class="day" style="margin:0">Marija</div><div class="meta">Dan 6 · 3 dni zapored</div></div></div>
+  </div>
+  <div class="scrim"></div>
+  <div class="bsheet">
+    <div class="grab"></div>
+    <h2>Končate povezavo z Marijo?</h2>
+    <p class="meta" style="font-size:20px;line-height:1.4;margin:10px 0 0">Ne bosta si več mogli pisati. Marija bo videla le, da se je povezava zaključila. Ekipa vidi vaša sporočila.</p>
+    <div class="solidb">Končaj povezavo</div>
+    <div class="ghost">Prekliči</div>
+  </div>
+</section>
+
+<!-- 9 ENDED: buddy finished recovery (read-only, only "Čestitajte") -->
+<section class="screen E" data-os="android" data-name="buddy-ended" data-kind="state" data-time="10:02" data-chrome="light" data-home="dark">
+  <div class="wrap">
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span></div>
+    <div class="row" style="gap:16px;margin-top:6px"><div class="bava lg">M</div><div><div class="day" style="margin:0">Marija</div><div class="meta">Okrevanje je zaključeno</div></div></div>
+    <div class="endcard tonal"><b>Povezava se je zaključila.</b><span>Sporočila lahko še berete.</span></div>
+    <div style="height:18px"></div>
+    <div class="sheet">
+      <div class="thread" data-scrolls>
+        <div class="when">Ponedeljek ob 9.15</div>
+        <div class="b them" data-ugc>Jutri imam zadnji pregled pri zdravniku. Hvala za vse pozdrave.</div>
+        <div class="b me cheer"><small>Pozdrav</small>Držim pesti.</div>
+      </div>
+      <div class="safety"><span>Zdravstvene težave? Pišite ekipi.</span><svg class="i"><use href="#chev"/></svg></div>
+      <div class="solidb" style="margin-top:12px"><svg class="i"><use href="#wave"/></svg>&nbsp;Čestitajte</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 EMPTY: no buddy yet (only reachable from a push or after an unpair) -->
+<section class="screen E" data-os="android" data-name="buddy-none" data-kind="empty" data-time="11:00" data-chrome="light">
+  <div class="wrap">
+    <div class="top"><span class="row"><svg class="i"><use href="#back"/></svg>Nazaj</span></div>
+    <div class="grow"></div>
+    <div class="empty-dots"><i class="me">I</i><i class="q"></i></div>
+    <div class="grow"></div>
+    <div class="day" style="margin:0">Kolega za okrevanje</div>
+    <p style="font-weight:400;font-size:20px;line-height:1.4;color:var(--ink2);margin:12px 0 0">Ekipa vas lahko poveže z drugim pacientom, ki okreva kot vi. Vidita si samo ime in ali je pregled oddan.</p>
+    <div style="height:28px"></div>
+    <div class="pill solid">Na začetek</div>
+  </div>
+</section>
+
+<script>
+document.querySelectorAll('svg[data-ring]').forEach(svg=>{
+  const today=+svg.dataset.ring, done=svg.hasAttribute('data-done'), ns='http://www.w3.org/2000/svg';
+  for(let i=0;i<42;i++){
+    const a=-Math.PI/2+i*2*Math.PI/42, r=156, c=document.createElementNS(ns,'circle');
+    c.setAttribute('cx',170+r*Math.cos(a)); c.setAttribute('cy',170+r*Math.sin(a));
+    if(i<today-1||(done&&i===today-1)){c.setAttribute('r',i===today-1?8:6);c.setAttribute('fill','#fff')}
+    else if(i===today-1){c.setAttribute('r',9);c.setAttribute('fill','#FFD45C');c.setAttribute('stroke','#1652C4');c.setAttribute('stroke-width',3)}
+    else {c.setAttribute('r',4);c.setAttribute('fill','rgba(255,255,255,.3)')}
+    svg.appendChild(c);
+  }
+});
+</script>
+<script src="kit/device.js"></script>
+</body>
+</html>

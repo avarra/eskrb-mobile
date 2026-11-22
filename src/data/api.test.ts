@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { protocol } from './api';
+import { buddyMessage, buddyState, careNotes, protocol } from './api';
 import { splitPhotoAnswers } from '../domain/check-in';
 import { initials } from '../domain/format';
 
@@ -34,6 +34,18 @@ describe('protocol from the server', () => {
     });
     expect(p.questions[1]).toEqual({ id: 'woundPhoto', type: 'photo', text: 'Fotografija rane', required: false });
   });
+
+  it('accepts free-text questions (as the server sends them, with skipExtraction)', () => {
+    const p = protocol.parse({
+      id: 'knee',
+      durationDays: 42,
+      questions: [
+        { id: 'notes', type: 'text', text: 'Želite še kaj dodati? (neobvezno)', min: null, max: null, unit: null, options: null, required: false, skipExtraction: false },
+      ],
+      rules: [],
+    });
+    expect(p.questions).toEqual([{ id: 'notes', type: 'text', text: 'Želite še kaj dodati? (neobvezno)', required: false }]);
+  });
 });
 
 describe('splitPhotoAnswers', () => {
@@ -65,5 +77,52 @@ describe('initials', () => {
     expect(initials('Dr. Maja Zupan')).toBe('MZ');
     expect(initials('Sestra Petra Žagar')).toBe('PŽ');
     expect(initials('')).toBe('·');
+  });
+});
+
+describe('buddy schemas', () => {
+  it('accepts a null buddy (no pair, or a pair a person ended)', () => {
+    expect(buddyState.parse({ status: 'none', buddy: null, unread: 0, moments: [], cheers: [] }).buddy).toBeNull();
+    expect(buddyState.parse({ status: 'ended', buddy: null, unread: 2, moments: [], cheers: [] }).unread).toBe(2);
+  });
+
+  it('drops unknown moments and unparseable cheers instead of failing', () => {
+    const s = buddyState.parse({
+      status: 'active',
+      buddy: { firstName: 'Nina', dayNumber: '6', checkedInToday: false, streak: 0, missedDays: 3, finished: false },
+      unread: 0,
+      moments: ['not_checked_in', 'birthday', 7, 'missed_days'],
+      cheers: [
+        { id: 'remind', moment: 'not_checked_in', label: 'Spomnite', text: 'Ne pozabite.', starter: null, nudge: true },
+        { id: 'broken' },
+        { id: 'until-tomorrow', moment: 'always', label: 'Do jutri', text: 'Do jutri.' },
+      ],
+    });
+    expect(s.moments).toEqual(['not_checked_in', 'missed_days']);
+    expect(s.cheers.map((c) => c.id)).toEqual(['remind', 'until-tomorrow']);
+    expect(s.cheers[1]).toMatchObject({ starter: null, nudge: false });
+    expect(s.buddy?.dayNumber).toBe(6);
+  });
+
+  it('accepts a message with a missing or null source (cheers)', () => {
+    const base = { id: '1', fromMe: false, kind: 'cheer', text: 'Držim pesti.', createdAt: '2026-11-21T15:05:00.123456Z' };
+    expect(buddyMessage.parse(base).source).toBeNull();
+    expect(buddyMessage.parse({ ...base, source: null }).source).toBeNull();
+    expect(buddyMessage.parse({ ...base, kind: 'text', source: 'dictated' }).source).toBe('dictated');
+  });
+});
+
+describe('careNotes', () => {
+  it('keeps medication and advice notes and drops kinds the patient must not see', () => {
+    const at = '2026-11-20T08:00:00Z';
+    const notes = careNotes.parse([
+      { id: '1', kind: 'medication', title: null, body: 'Xarelto 10 mg zjutraj', createdAt: at, updatedAt: at },
+      { id: '2', kind: 'advice', title: 'Hlajenje', body: 'Koleno hladite 20 minut.', createdAt: at, updatedAt: at },
+      { id: '3', kind: 'private', title: null, body: 'interno', createdAt: at, updatedAt: at },
+    ]);
+    expect(notes.map((n) => [n.id, n.kind, n.title])).toEqual([
+      ['1', 'medication', null],
+      ['2', 'advice', 'Hlajenje'],
+    ]);
   });
 });

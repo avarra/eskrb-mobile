@@ -1,9 +1,9 @@
 // Where a tapped server push should open. Pure so it can be unit-tested without native modules.
 
-export type PushRoute = '/' | '/notes' | '/checkin';
+export type PushRoute = '/' | '/notes' | '/checkin' | '/buddy';
 
 /**
- * The backend sends `data: { kind, episodeId? }`. Today only `kind: 'manual'` exists (admin broadcast);
+ * The backend sends `data: { kind, episodeId? }`: `kind: 'manual'` (admin broadcast) and `kind: 'buddy'` (a buddy message or cheer);
  * the other kinds are placeholders until the backend adds automatic triggers. Unknown kinds open home.
  */
 export function pushRoute(data: unknown): PushRoute | null {
@@ -13,6 +13,8 @@ export function pushRoute(data: unknown): PushRoute | null {
       return '/notes';
     case 'checkin_reminder':
       return '/checkin';
+    case 'buddy':
+      return '/buddy';
     default:
       return '/';
   }

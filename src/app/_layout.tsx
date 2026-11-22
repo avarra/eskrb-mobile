@@ -111,7 +111,9 @@ export default function RootLayout() {
           <Stack.Screen name="exercises/index" />
           <Stack.Screen name="exercises/[id]" options={{ presentation: 'fullScreenModal', contentStyle: { backgroundColor: '#000' } }} />
           <Stack.Screen name="notes" />
+          <Stack.Screen name="instructions" />
           <Stack.Screen name="message/[id]" />
+          <Stack.Screen name="buddy" />
           <Stack.Screen name="debug" />
         </Stack>
       </QueryClientProvider>

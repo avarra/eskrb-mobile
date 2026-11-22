@@ -65,6 +65,8 @@ export const sl = {
     numberHint: 'Spremenite s tipkama minus in plus.',
     choiceHint: 'Izberite eno možnost.',
     photoHint: 'Fotografirajte ali izberite fotografijo iz galerije.',
+    textHint: 'Napišite s svojimi besedami. Lahko tudi preskočite.',
+    textPlaceholder: 'Na primer: koleno me bolj boli ponoči.',
     photoAdd: 'Dodaj fotografijo',
     photoChange: 'Tapnite za drugo fotografijo.',
     skip: 'Preskoči',
@@ -175,6 +177,16 @@ export const sl = {
     use: 'Uporabi fotografijo',
     reviewLabel: 'Posneta fotografija',
   },
+  instructions: {
+    title: 'Navodila ekipe',
+    link: 'Navodila',
+    medication: 'Zdravila',
+    advice: 'Nasvet',
+    updated: (when: string) => `Posodobljeno ${when}`,
+    empty: 'Ekipa vam še ni napisala navodil.',
+    /** Under the "have you taken your meds?" question, above the instructions themselves. */
+    medsHint: 'Vaša navodila za zdravila:',
+  },
   notes: {
     title: 'Zapisi',
     trendDown: (vals: string) => `Bolečina pada: ${vals}.`,
@@ -269,6 +281,107 @@ export const sl = {
     noPermission: 'Za spremljanje vaje potrebujemo dostop do kamere. Posnetek se obdela samo na telefonu.',
     error: 'Zaznavanje trenutno ne deluje. Zaprite vajo in jo odprite znova.',
     unknown: 'Te vaje ne poznamo.',
+  },
+  /**
+   * Recovery buddy ("kolega"). Wording from design/BUDDY.md: "pregled" (never "prijava"), formal "vi", no gendered
+   * verbs. Cheer labels and texts come from the server's catalogue, not from here. Native-speaker review pending.
+   */
+  buddy: {
+    title: 'Kolega za okrevanje',
+    more: 'Več možnosti',
+    /** "Dan 6", "Dan 6 · 2 dneva zapored", "Dan 6 · 3 dni zapored" (the streak only from 2 on). */
+    day: (day: number) => `Dan ${day}`,
+    streak: (n: number) => `${n} ${n === 2 ? 'dneva' : 'dni'} zapored`,
+    finished: 'Okrevanje je zaključeno',
+    pair: {
+      both: 'Oba pregleda oddana.',
+      meOnly: 'Vaš pregled je oddan.',
+      buddyOnly: (name: string) => `${name}: današnji pregled je oddan.`,
+      neither: 'Današnja pregleda še nista oddana.',
+    },
+    dotsA11y: (me: boolean, buddy: boolean, name: string) =>
+      `Vaš pregled ${me ? 'je oddan' : 'še ni oddan'}. ${name}: pregled ${buddy ? 'je oddan' : 'še ni oddan'}.`,
+    home: {
+      newCheer: (time: string) => `Nov pozdrav ob ${time}`,
+      newText: (time: string) => `Novo sporočilo ob ${time}`,
+      unread: 'Novo sporočilo',
+      both: 'Oba pregleda oddana.',
+      buddyDone: 'Današnji pregled je oddan.',
+      ended: 'Povezava se je zaključila.',
+      a11y: (name: string, line: string) => `Kolega ${name}. ${line}`,
+      button: 'Kolega za okrevanje',
+      buttonUnread: 'Kolega za okrevanje, novo sporočilo',
+    },
+    cheer: 'Pozdrav',
+    cheerSent: 'Pozdrav · poslano',
+    you: 'Vi',
+    bubbleA11y: (who: string, when: string, text: string) => `${who}, ${when}: ${text}`,
+    cheerA11y: (who: string, when: string, text: string) => `${who}, ${when}, pozdrav: ${text}`,
+    safety: 'Zdravstvene težave? Pišite ekipi.',
+    safetyHint: 'Odpre sporočila ekipi.',
+    composer: {
+      /** "Napišite Mariji" needs the dative; see `dative()` in domain/buddy.ts. */
+      placeholder: (dative: string | null) => (dative ? `Napišite ${dative}` : 'Napišite sporočilo'),
+      fieldA11y: 'Sporočilo kolegu',
+      greet: 'Pozdrav',
+      send: 'Pošlji',
+      write: 'Napiši',
+      dictated: 'Narekovano. Besedilo lahko popravite.',
+      listening: 'Poslušam …',
+      tapToStop: 'Tapnite za konec.',
+      dictateA11y: 'Začni narekovati',
+      stopA11y: 'Ustavi narekovanje',
+      counter: (n: number, max: number) => `${n}/${max}`,
+      counterA11y: (n: number, max: number) => `${n} od ${max} znakov`,
+    },
+    congratulate: 'Čestitajte',
+    sheet: {
+      title: 'Pošljite pozdrav',
+      receives: (name: string) => `${name} prejme besedilo v narekovajih.`,
+      quote: (text: string) => `»${text}«`,
+      own: 'Napišite svoje sporočilo',
+      optionA11y: (label: string, text: string) => `${label}. Prejme: ${text}`,
+    },
+    report: {
+      title: 'Opozorite ekipo na to sporočilo?',
+      body: 'Ekipa ga bo prebrala. Opozorilo vidi samo ekipa.',
+      action: 'Opozori ekipo',
+      a11yAction: 'Opozori ekipo na sporočilo',
+      done: 'Ekipa je opozorjena.',
+    },
+    leave: {
+      /** "Končate povezavo z Marijo?" needs the instrumental; see `withInstrumental()` in domain/buddy.ts. */
+      title: (withName: string | null) => (withName ? `Končate povezavo ${withName}?` : 'Končate povezavo?'),
+      body: 'Pisanje ne bo več mogoče. Drugi strani pokažemo le, da se je povezava zaključila. Ekipa vidi vaša sporočila.',
+      action: 'Končaj povezavo',
+    },
+    ended: {
+      title: 'Povezava se je zaključila.',
+      body: 'Sporočila lahko še berete.',
+    },
+    none: {
+      title: 'Kolega za okrevanje',
+      body: 'Ekipa vas lahko poveže z drugim pacientom, ki okreva kot vi. Vidita si samo ime in ali je pregled oddan.',
+      home: 'Na začetek',
+    },
+    nudge: {
+      text: (name: string) => `${name}: današnji pregled še ni oddan. Pošljete prijazen opomnik?`,
+      action: 'Spomnite na pregled',
+    },
+    errors: {
+      cheerCap: 'Danes ste poslali dovolj pozdravov. Jutri lahko znova.',
+      nudgeCap: 'Opomnik ste danes že poslali.',
+      askCap: 'To ste vprašali pred kratkim. Čez nekaj dni lahko znova.',
+      textRate: 'Sporočila pošiljate prehitro. Poskusite malo pozneje.',
+      notNow: 'Ta pozdrav zdaj ne ustreza več. Izberite drugega.',
+      ended: 'Povezava se je zaključila.',
+      alreadySent: 'To ste že poslali.',
+      link: 'Povezave v sporočilih niso dovoljene.',
+      tooLong: 'Sporočilo je predolgo. Največ 300 znakov.',
+      failed: 'Pošiljanje ni uspelo. Poskusite znova.',
+      reportFailed: 'Opozorila ni bilo mogoče poslati. Poskusite znova.',
+      leaveFailed: 'Povezave ni bilo mogoče končati. Poskusite znova.',
+    },
   },
   months: [
     'januar', 'februar', 'marec', 'april', 'maj', 'junij',
