@@ -42,6 +42,8 @@ function CheckInEntry({ c }: { c: CheckIn }) {
   const pain = typeof c.answers.pain === 'number' ? c.answers.pain : null;
   const temp = typeof c.answers.temperature === 'number' ? c.answers.temperature : null;
   const meta = [whenLine(c.createdAt), temp !== null ? `${decimal(temp)} °C` : null].filter(Boolean).join(' · ');
+  // Photo answers come back as server media paths.
+  const photos = Object.values(c.answers).filter((v): v is string => typeof v === 'string' && v.startsWith('/media/'));
   return (
     <View>
       <View style={[styles.row, { flexWrap: 'wrap' }]}>
@@ -59,6 +61,13 @@ function CheckInEntry({ c }: { c: CheckIn }) {
       <Text variant="meta" color={colors.sheetInk2}>
         {meta}
       </Text>
+      {photos.length > 0 && (
+        <View style={[styles.row, { marginTop: 8 }]}>
+          {photos.map((p) => (
+            <Image key={p} source={mediaSource(p)} cachePolicy="memory" style={styles.thumb} contentFit="cover" accessibilityLabel={sl.notes.photo} />
+          ))}
+        </View>
+      )}
       {c.reviewed && <Reviewed />}
     </View>
   );

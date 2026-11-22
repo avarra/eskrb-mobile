@@ -10,10 +10,10 @@ export function deleteTempPhoto(uri: string): void {
   }
 }
 
-/** File name and MIME type for a multipart upload, from the local file's extension. */
-export function photoPart(uri: string): { uri: string; name: string; type: string } {
-  const ext = /\.(png|heic|heif|webp|jpe?g)$/i.exec(uri)?.[1]?.toLowerCase() ?? 'jpg';
-  const type = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext}`;
-  return { uri, name: `photo.${ext}`, type };
+/**
+ * A photo as a multipart file part. Expo replaces the global `fetch` with `expo/fetch`, which can't send React Native's
+ * `{ uri, name, type }` parts (it throws before any request goes out); it reads an expo-file-system `File` through `bytes()`.
+ */
+export function photoPart(uri: string): File {
+  return new File(uri);
 }
-

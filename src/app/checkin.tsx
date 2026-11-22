@@ -9,7 +9,9 @@ import { Text } from '@/components/text';
 import { TopBar } from '@/components/top-bar';
 import { sl } from '@/copy/sl';
 import type { AnswerValue, Answers } from '@/data/api';
+import { errorDetail } from '@/data/http';
 import { useEpisode, usePostCheckIn } from '@/data/queries';
+import { splitPhotoAnswers } from '@/domain/check-in';
 import { colors, heatFor } from '@/theme/tokens';
 
 /** One question per screen, rendered from the protocol JSON. */
@@ -26,20 +28,24 @@ export default function CheckIn() {
   const last = step === total - 1;
   const value: AnswerValue | undefined = answers[q.id] ?? initialAnswer(q);
   const answered = value !== undefined;
+  // The server rejects a check-in that leaves out a `required: true` question; only explicitly optional ones may be skipped.
+  const canSkip = !answered && q.required === false;
 
   const wash = q.type === 'scale' && isPain(q) && typeof value === 'number' ? heatFor(value - q.min, q.max - q.min).wash : null;
 
   const back = () => (step === 0 ? router.back() : setStep(step - 1));
   const next = () => {
-    if (!answered) return;
-    const all = { ...answers, [q.id]: value };
+    if (!answered && !canSkip) return;
+    const all = { ...answers };
+    if (value === undefined) delete all[q.id];
+    else all[q.id] = value;
     setAnswers(all);
     if (!last) {
       setStep(step + 1);
       return;
     }
     post.mutate(
-      { episodeId: me.episode.id, answers: all },
+      { episodeId: me.episode.id, input: splitPhotoAnswers(questions, all) },
       {
         onSuccess: (r) => {
           const reason = r.flags.find((f) => f.severity === 'urgent')?.ruleId ?? '';
@@ -66,19 +72,24 @@ export default function CheckIn() {
           {hintFor(q)}
         </Text>
         <View style={{ flexGrow: 1, minHeight: 24 }} />
-        <QuestionView question={q} value={value} onChange={(v) => setAnswers((a) => ({ ...a, [q.id]: v }))} />
+        <QuestionView
+          question={q}
+          value={value}
+          onChange={(v) => setAnswers((a) => ({ ...a, [q.id]: v }))}
+          onClear={() => setAnswers(({ [q.id]: _, ...rest }) => rest)}
+        />
         <View style={{ height: 36 }} />
       </ScrollView>
       {post.isError && (
         <Text variant="body" color={colors.today} style={{ marginBottom: 12 }} accessibilityLiveRegion="polite">
-          {sl.checkin.error}
+          {errorDetail(post.error, sl.checkin.error)}
         </Text>
       )}
       <PillButton
         variant="solid"
-        label={last ? sl.checkin.submit : sl.common.next}
+        label={canSkip && !last ? sl.checkin.skip : last ? sl.checkin.submit : sl.common.next}
         onPress={next}
-        disabled={!answered}
+        disabled={!answered && !canSkip}
         busy={post.isPending}
       />
     </Screen>

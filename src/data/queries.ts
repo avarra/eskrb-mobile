@@ -1,11 +1,13 @@
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { MutationCache, QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import type { Answers, NewLog } from '@/data/api';
+import type { NewCheckIn, NewLog } from '@/data/api';
 import { normalizeToken } from '@/data/auth';
 import { ApiError } from '@/data/http';
 import { api, device } from '@/data';
 
 export const queryClient = new QueryClient({
+  // Screens show a short message; keep the real error visible while developing.
+  mutationCache: new MutationCache({ onError: (e) => __DEV__ && console.warn(e) }),
   defaultOptions: {
     queries: {
       staleTime: 30_000,
@@ -57,7 +59,7 @@ function useInvalidateAll() {
 export function usePostCheckIn() {
   const invalidate = useInvalidateAll();
   return useMutation({
-    mutationFn: ({ episodeId, answers }: { episodeId: string; answers: Answers }) => api.postCheckIn(episodeId, answers),
+    mutationFn: ({ episodeId, input }: { episodeId: string; input: NewCheckIn }) => api.postCheckIn(episodeId, input),
     onSuccess: invalidate,
   });
 }

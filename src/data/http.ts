@@ -11,6 +11,11 @@ export class ApiError extends Error {
   }
 }
 
+/** Text to show for a failed request: the server's own `detail` for client errors, else the fallback. */
+export function errorDetail(e: unknown, fallback: string): string {
+  return e instanceof ApiError && e.status >= 400 && e.status < 500 && e.status !== 401 && e.detail ? e.detail : fallback;
+}
+
 let onUnauthorized: (() => void) | null = null;
 /** Registered by the root layout so a 401 anywhere signs the patient out. */
 export function setUnauthorizedHandler(fn: (() => void) | null) {

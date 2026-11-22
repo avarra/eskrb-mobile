@@ -5,6 +5,7 @@ import { z } from 'zod';
 import {
   answers,
   episode as episodeSchema,
+  MAX_LOG_PHOTOS,
   flag,
   me as meSchema,
   patientAction,
@@ -54,6 +55,8 @@ const logDto = z.object({
 
 const logResultDto = z.object({
   log: logDto,
+  /** Every log the request created (one per photo); `log` is the first. */
+  logs: z.array(logDto),
   flags: z.array(flag),
   patientAction,
 });
@@ -113,8 +116,18 @@ export const remoteApi: Api = {
     };
   },
 
-  async postCheckIn(episodeId, a): Promise<SubmitResult<CheckIn>> {
-    const dto = checkInResultDto.parse(await request(`/episodes/${episodeId}/checkins`, { method: 'POST', body: { answers: a } }));
+  async postCheckIn(episodeId, { answers: a, photos }): Promise<SubmitResult<CheckIn>> {
+    const photoEntries = Object.entries(photos);
+    let body: unknown = { answers: a };
+    if (photoEntries.length) {
+      // Photo answers go as file parts named by the question id; the rest as a JSON text field.
+      const form = new FormData();
+      form.append('answers', JSON.stringify(a));
+      for (const [questionId, uri] of photoEntries) form.append(questionId, photoPart(uri));
+      body = form;
+    }
+    const dto = checkInResultDto.parse(await request(`/episodes/${episodeId}/checkins`, { method: 'POST', body }));
+    photoEntries.forEach(([, uri]) => deleteTempPhoto(uri));
     return {
       item: { id: dto.id, date: dto.date, answers: dto.answers, createdAt: nowIso(), reviewed: false },
       flags: dto.flags,
@@ -126,16 +139,19 @@ export const remoteApi: Api = {
     const text = input.text?.trim() || null;
     const results: z.infer<typeof logResultDto>[] = [];
 
+    if (input.photoUris.length > MAX_LOG_PHOTOS) throw new Error(`At most ${MAX_LOG_PHOTOS} photos per note`);
+    // Photos first: a rejected file (wrong format, too big) is the likelier failure, and then the text isn't saved twice on retry.
+    if (input.photoUris.length) {
+      // One all-or-nothing request; each file becomes its own photo log.
+      const form = new FormData();
+      for (const uri of input.photoUris) form.append('file', photoPart(uri));
+      results.push(logResultDto.parse(await request(`/episodes/${episodeId}/logs`, { method: 'POST', body: form })));
+      input.photoUris.forEach(deleteTempPhoto);
+    }
     if (text) {
       const body = { type: 'text', source: input.source ?? 'typed', text };
-      results.push(logResultDto.parse(await request(`/episodes/${episodeId}/logs`, { method: 'POST', body })));
-    }
-    if (input.photoUri) {
-      const form = new FormData();
-      // React Native's FormData takes a { uri, name, type } file part.
-      form.append('file', photoPart(input.photoUri) as unknown as Blob);
-      results.push(logResultDto.parse(await request(`/episodes/${episodeId}/logs`, { method: 'POST', body: form })));
-      deleteTempPhoto(input.photoUri);
+      // The text log leads, so it goes to the front.
+      results.unshift(logResultDto.parse(await request(`/episodes/${episodeId}/logs`, { method: 'POST', body })));
     }
 
     const first = results[0];

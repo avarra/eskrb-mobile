@@ -7,12 +7,14 @@ export type AnswerValue = z.infer<typeof answerValue>;
 export const answers = z.record(z.string(), answerValue);
 export type Answers = z.infer<typeof answers>;
 
-const questionBase = { id: z.string(), text: z.string() };
+const questionBase = { id: z.string(), text: z.string(), required: z.boolean().optional() };
 const questionUnion = z.discriminatedUnion('type', [
   z.object({ ...questionBase, type: z.literal('scale'), min: z.number(), max: z.number() }),
   z.object({ ...questionBase, type: z.literal('number'), unit: z.string() }),
   z.object({ ...questionBase, type: z.literal('choice'), options: z.array(z.string()).min(1) }),
   z.object({ ...questionBase, type: z.literal('boolean') }),
+  /** Answered with a photo; sent as a multipart file part named by the question id. */
+  z.object({ ...questionBase, type: z.literal('photo') }),
 ]);
 /** The server sends every optional field, as null when unused (`min: null` on a choice). Drop the nulls first. */
 export const question = z.preprocess(
@@ -125,8 +127,18 @@ export type Timeline = { items: TimelineItem[] };
 export type NewLog = {
   text: string | null;
   source: LogSource | null;
-  /** Local file URI of a photo the patient took or picked. */
-  photoUri: string | null;
+  /** Local file URIs of photos the patient took or picked (at most `MAX_LOG_PHOTOS`). */
+  photoUris: string[];
+};
+
+/** The server accepts at most this many photos per log request. */
+export const MAX_LOG_PHOTOS = 5;
+
+export type NewCheckIn = {
+  /** Non-photo answers. */
+  answers: Answers;
+  /** Photo answers: question id → local file URI. */
+  photos: Record<string, string>;
 };
 
 /** Mirrors the REST endpoints the patient app uses. Swap the implementation, not the screens. */
@@ -135,9 +147,9 @@ export interface Api {
   getMe(token?: string): Promise<Me>;
   /** GET /me/episode — null when the patient has no active episode (404). */
   getMyEpisode(): Promise<MyEpisode | null>;
-  /** POST /episodes/:id/checkins */
-  postCheckIn(episodeId: string, answers: Answers): Promise<SubmitResult<CheckIn>>;
-  /** POST /episodes/:id/logs — text (JSON) and photo (multipart) are separate requests on the server. */
+  /** POST /episodes/:id/checkins — JSON, or multipart when the protocol has photo answers. */
+  postCheckIn(episodeId: string, input: NewCheckIn): Promise<SubmitResult<CheckIn>>;
+  /** POST /episodes/:id/logs — text (JSON) and photos (one multipart request, up to 5 files) are separate requests on the server. */
   postLog(episodeId: string, input: NewLog): Promise<SubmitResult<Log>>;
   /** GET /episodes/:id/timeline — newest first. */
   getTimeline(episodeId: string): Promise<Timeline>;

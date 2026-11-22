@@ -1,7 +1,6 @@
 import { Image } from 'expo-image';
-import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View, type TextInputInstance } from 'react-native';
 
 import { Icon } from '@/components/icon';
@@ -11,12 +10,14 @@ import { Screen } from '@/components/screen';
 import { Text } from '@/components/text';
 import { TopBar } from '@/components/top-bar';
 import { sl } from '@/copy/sl';
+import { MAX_LOG_PHOTOS } from '@/data/api';
+import { errorDetail } from '@/data/http';
 import { useEpisode, usePostLog } from '@/data/queries';
 import { useDictation } from '@/lib/dictation';
-import { pendingPhoto, usePendingPhoto } from '@/lib/pending-photo';
+import { usePhotoPicker } from '@/lib/photo-picker';
 import { colors, font, radius, size } from '@/theme/tokens';
 
-/** Quick log: one editable text field, on-device dictation, an optional wound photo. Text only; no audio. */
+/** Quick log: one editable text field, on-device dictation, up to five wound photos. Text only; no audio. */
 export default function Note() {
   const { data: me } = useEpisode();
   const post = usePostLog();
@@ -27,27 +28,17 @@ export default function Note() {
   const listening = dictation.state === 'listening';
   const micVisible = dictation.state === 'idle' || listening;
 
-  // The photo lives in a tiny store so the camera modal can hand it back; cleared when the note closes.
-  const photo = usePendingPhoto();
-  const setPhoto = pendingPhoto.set;
-  useEffect(() => () => pendingPhoto.set(null), []);
-
-  const pickPhoto = () => {
-    Alert.alert(sl.note.photoSource, undefined, [
-      { text: sl.note.takePhoto, onPress: () => router.push('/camera') },
-      {
-        text: sl.note.fromGallery,
-        onPress: async () => {
-          // iOS cannot present the picker while the alert is still animating away.
-          await new Promise((resolve) => setTimeout(resolve, 450));
-          const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8, allowsMultipleSelection: false });
-          if (!r.canceled && r.assets[0]) setPhoto(r.assets[0].uri);
-        },
-      },
-      ...(photo ? [{ text: sl.note.removePhoto, style: 'destructive' as const, onPress: () => setPhoto(null) }] : []),
-      { text: sl.common.cancel, style: 'cancel' as const },
+  const [photos, setPhotos] = useState<string[]>([]);
+  const room = MAX_LOG_PHOTOS - photos.length;
+  const pickPhoto = usePhotoPicker({
+    limit: room,
+    onPicked: (uris) => setPhotos((p) => [...p, ...uris].slice(0, MAX_LOG_PHOTOS)),
+  });
+  const removePhoto = (uri: string) =>
+    Alert.alert(sl.note.removePhotoConfirm, undefined, [
+      { text: sl.note.removePhoto, style: 'destructive', onPress: () => setPhotos((p) => p.filter((x) => x !== uri)) },
+      { text: sl.common.cancel, style: 'cancel' },
     ]);
-  };
 
   const toggleMic = () => {
     if (listening) {
@@ -59,13 +50,13 @@ export default function Note() {
   };
 
   const trimmed = text.trim();
-  const canSend = !!me && (trimmed.length > 0 || !!photo) && !listening;
+  const canSend = !!me && (trimmed.length > 0 || photos.length > 0) && !listening;
   const send = () => {
     if (!me || !canSend) return;
     post.mutate(
       {
         episodeId: me.episode.id,
-        input: { text: trimmed || null, source: trimmed ? (dictation.usedDictation ? 'dictated' : 'typed') : null, photoUri: photo },
+        input: { text: trimmed || null, source: trimmed ? (dictation.usedDictation ? 'dictated' : 'typed') : null, photoUris: photos },
       },
       {
         onSuccess: (r) => {
@@ -109,10 +100,19 @@ export default function Note() {
               cursorColor={colors.ground}
               style={styles.input}
             />
-            {photo && (
-              <Pressable onPress={pickPhoto} accessibilityRole="button" accessibilityLabel={`${sl.note.photoA11y}. ${sl.note.changePhoto}`}>
-                <Image source={{ uri: photo }} style={styles.photo} contentFit="cover" />
-              </Pressable>
+            {photos.length > 0 && (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip} keyboardShouldPersistTaps="handled">
+                {photos.map((uri, i) => (
+                  <Pressable
+                    key={uri}
+                    onPress={() => removePhoto(uri)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${sl.note.photoA11y} ${i + 1}. ${sl.note.removePhoto}`}
+                  >
+                    <Image source={{ uri }} style={styles.photo} contentFit="cover" />
+                  </Pressable>
+                ))}
+              </ScrollView>
             )}
           </Pressable>
           {errorText && (
@@ -140,11 +140,16 @@ export default function Note() {
         </ScrollView>
         {post.isError && (
           <Text variant="body" color={colors.today} style={{ marginBottom: 12 }}>
-            {sl.note.error}
+            {errorDetail(post.error, sl.note.error)}
           </Text>
         )}
         <View style={{ gap: 12, marginTop: 8 }}>
-          <PillButton label={photo ? sl.note.changePhoto : sl.note.addPhoto} icon="cam" onPress={pickPhoto} />
+          <PillButton
+            label={photos.length ? sl.note.photoCount(photos.length, MAX_LOG_PHOTOS) : sl.note.addPhoto}
+            icon="cam"
+            onPress={pickPhoto}
+            disabled={room <= 0}
+          />
           <PillButton variant="solid" label={sl.common.send} onPress={send} disabled={!canSend} busy={post.isPending} />
         </View>
       </KeyboardAvoidingView>
@@ -171,5 +176,6 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     padding: 0,
   },
-  photo: { marginTop: 16, width: 96, height: 96, borderRadius: radius.thumb },
+  strip: { gap: 10, marginTop: 16 },
+  photo: { width: 96, height: 96, borderRadius: radius.thumb },
 });

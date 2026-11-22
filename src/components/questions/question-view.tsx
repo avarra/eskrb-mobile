@@ -1,6 +1,7 @@
 import type { AnswerValue, Question } from '@/data/api';
 import { ChoicePills } from '@/components/questions/choice-pills';
 import { NumberStepper } from '@/components/questions/number-stepper';
+import { PhotoQuestion } from '@/components/questions/photo-question';
 import { ScaleWedge } from '@/components/questions/scale-wedge';
 import { sl } from '@/copy/sl';
 
@@ -29,14 +30,18 @@ export function hintFor(q: Question): string {
     case 'choice':
     case 'boolean':
       return sl.checkin.choiceHint;
+    case 'photo':
+      return sl.checkin.photoHint;
   }
 }
 
 /** Renders any protocol question generically by `type`. */
-export function QuestionView({ question: q, value, onChange }: {
+export function QuestionView({ question: q, value, onChange, onClear }: {
   question: Question;
   value: AnswerValue | undefined;
   onChange: (v: AnswerValue) => void;
+  /** Unanswer the question (removing a photo). */
+  onClear: () => void;
 }) {
   switch (q.type) {
     case 'scale':
@@ -72,5 +77,7 @@ export function QuestionView({ question: q, value, onChange }: {
           onChange={onChange}
         />
       );
+    case 'photo':
+      return <PhotoQuestion value={typeof value === 'string' ? value : undefined} onChange={onChange} onClear={onClear} label={q.text} />;
   }
 }
