@@ -13,6 +13,25 @@ The first version covers one loop for one procedure, knee replacement:
 
 All patient-facing text is in Slovenian.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><img src="screenshots/IMG_6308.PNG" width="180" alt="Home screen with recovery progress ring" /></td>
+    <td align="center"><img src="screenshots/IMG_6312.PNG" width="180" alt="New entry with dictation and photo" /></td>
+    <td align="center"><img src="screenshots/IMG_6309.PNG" width="180" alt="Entries timeline with pain scores" /></td>
+    <td align="center"><img src="screenshots/IMG_6311.PNG" width="180" alt="Knee exercises list" /></td>
+    <td align="center"><img src="screenshots/IMG_6310.PNG" width="180" alt="Buddy chat" /></td>
+  </tr>
+  <tr>
+    <td align="center">Home: recovery day ring</td>
+    <td align="center">New entry: dictate or add a photo</td>
+    <td align="center">Entries timeline with pain scores</td>
+    <td align="center">Knee exercises with pose detection</td>
+    <td align="center">Buddy system chat</td>
+  </tr>
+</table>
+
 ## Stack
 
 - Expo with TypeScript and Expo Router
