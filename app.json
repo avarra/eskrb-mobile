@@ -13,7 +13,7 @@
     ],
     "ios": {
       "bundleIdentifier": "dev.avarra.eskrb",
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/eskrb.icon",
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -32,7 +32,6 @@
       "adaptiveIcon": {
         "backgroundColor": "#1652C4",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "permissions": [

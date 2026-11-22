@@ -1,8 +1,28 @@
 {
   "fill" : {
-    "automatic-gradient" : "extended-srgb:0.08627,0.32157,0.76863,1.00000"
+    "solid" : "srgb:0.08627,0.32157,0.76863,1.00000"
   },
   "groups" : [
+    {
+      "layers" : [
+        {
+          "image-name" : "heart.svg",
+          "name" : "heart"
+        },
+        {
+          "image-name" : "e.svg",
+          "name" : "e"
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.4
+      }
+    },
     {
       "layers" : [
         {
