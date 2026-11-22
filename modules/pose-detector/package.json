@@ -1,0 +1,21 @@
+{
+  "name": "react-native-pose-detector",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ML Kit (accurate) pose detection for VisionCamera v5 frames, as a Nitro module.",
+  "main": "src/index.ts",
+  "react-native": "src/index.ts",
+  "source": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "MIT",
+  "author": "eSkrb",
+  "homepage": "https://github.com/avarra/eskrb",
+  "scripts": {
+    "specs": "nitrogen --logLevel=debug"
+  },
+  "peerDependencies": {
+    "react-native": "*",
+    "react-native-nitro-modules": "*",
+    "react-native-vision-camera": ">=5"
+  }
+}

@@ -12,6 +12,7 @@ import { Text } from '@/components/text';
 import { sl } from '@/copy/sl';
 import { useEpisode, useSession, useSetSetting, useSetting, useSignOut, useTimeline } from '@/data/queries';
 import { longDate } from '@/domain/format';
+import { registerPushToken } from '@/lib/push';
 import { enableDailyReminder } from '@/lib/reminder';
 import { colors, size, space } from '@/theme/tokens';
 
@@ -70,7 +71,7 @@ export default function Home() {
 
   const answerReminder = async (allow: boolean) => {
     setSetting.mutate({ key: ASKED, value: '1' });
-    if (allow) await enableDailyReminder();
+    if (allow && (await enableDailyReminder())) await registerPushToken();
   };
 
   return (
@@ -128,7 +129,10 @@ export default function Home() {
 
         <View style={styles.grow} />
 
-        <PillButton label={sl.home.addNote} icon="mic" onPress={() => router.push('/note')} />
+        <View style={{ gap: 12 }}>
+          <PillButton label={sl.home.exercises} onPress={() => router.push('/exercises')} />
+          <PillButton label={sl.home.addNote} icon="mic" onPress={() => router.push('/note')} />
+        </View>
       </ScrollView>
       <ReminderSheet visible={showReminderAsk} onAnswer={answerReminder} />
     </Screen>

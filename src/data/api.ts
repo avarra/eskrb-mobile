@@ -7,10 +7,13 @@ export type AnswerValue = z.infer<typeof answerValue>;
 export const answers = z.record(z.string(), answerValue);
 export type Answers = z.infer<typeof answers>;
 
+/** The OpenAPI spec allows int32 fields as strings ("42"). */
+const int = z.coerce.number().int();
+
 const questionBase = { id: z.string(), text: z.string(), required: z.boolean().optional() };
 const questionUnion = z.discriminatedUnion('type', [
-  z.object({ ...questionBase, type: z.literal('scale'), min: z.number(), max: z.number() }),
-  z.object({ ...questionBase, type: z.literal('number'), unit: z.string() }),
+  z.object({ ...questionBase, type: z.literal('scale'), min: int, max: int }),
+  z.object({ ...questionBase, type: z.literal('number'), unit: z.string().default('') }),
   z.object({ ...questionBase, type: z.literal('choice'), options: z.array(z.string()).min(1) }),
   z.object({ ...questionBase, type: z.literal('boolean') }),
   /** Answered with a photo; sent as a multipart file part named by the question id. */
@@ -35,12 +38,27 @@ export const rule = z.object({
 });
 export type Rule = z.infer<typeof rule>;
 
+/**
+ * Parses each item on its own and drops the ones this app version can't handle (a new question type, a new rule op),
+ * so one unknown item doesn't fail the whole episode and show the patient the offline screen.
+ */
+function lenientArray<T extends z.ZodTypeAny>(item: T, label: string) {
+  return z.array(z.unknown()).transform((items) =>
+    items.flatMap((raw) => {
+      const r = item.safeParse(raw);
+      if (r.success) return [r.data as z.output<T>];
+      if (__DEV__) console.warn(`[api] dropped ${label}`, JSON.stringify(raw), r.error.issues);
+      return [];
+    }),
+  );
+}
+
 export const protocol = z.object({
   id: z.string(),
   name: z.string().optional(),
-  durationDays: z.number().int().positive(),
-  questions: z.array(question),
-  rules: z.array(rule),
+  durationDays: int.positive(),
+  questions: lenientArray(question, 'question'),
+  rules: lenientArray(rule, 'rule'),
 });
 export type Protocol = z.infer<typeof protocol>;
 
@@ -158,3 +176,7 @@ export interface Api {
   /** Stored on the phone until the server tracks read state. */
   markMessageRead(messageId: string): Promise<void>;
 }
+
+/** POST /stt/temporary-key: a single-use Soniox key for one live transcription stream. Never log or cache it. */
+export const sttKey = z.object({ apiKey: z.string().min(1), expiresAt: z.string() });
+export type SttKey = z.infer<typeof sttKey>;

@@ -107,7 +107,13 @@ export const remoteApi: Api = {
       if (e instanceof ApiError && e.status === 404) return null;
       throw e;
     }
-    const dto = episodeDto.parse(raw);
+    const parsed = episodeDto.safeParse(raw);
+    if (!parsed.success) {
+      // Surfaces as the offline screen; log why so a contract mismatch isn't mistaken for a network problem.
+      console.error('[api] /me/episode did not match the contract', parsed.error.issues);
+      throw parsed.error;
+    }
+    const dto = parsed.data;
     return {
       episode: episodeSchema.parse(dto),
       protocol: dto.protocol,

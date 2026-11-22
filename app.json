@@ -21,9 +21,9 @@
         "UIViewControllerBasedStatusBarAppearance": false,
         "CFBundleDevelopmentRegion": "sl",
         "CFBundleAllowMixedLocalizations": true,
-        "NSMicrophoneUsageDescription": "Da lahko zapis narekujete namesto tipkate. Zvok ostane na telefonu.",
-        "NSSpeechRecognitionUsageDescription": "Da lahko zapis narekujete namesto tipkate. Zvok ostane na telefonu.",
-        "NSCameraUsageDescription": "Za fotografijo rane, ki jo pregleda vaša ekipa.",
+        "NSMicrophoneUsageDescription": "Da lahko zapis narekujete namesto tipkate. Zvok se sproti pretvori v besedilo in se nikjer ne shrani.",
+        "NSSpeechRecognitionUsageDescription": "Da lahko zapis narekujete namesto tipkate. Zvok se sproti pretvori v besedilo in se nikjer ne shrani.",
+        "NSCameraUsageDescription": "Za fotografijo rane, ki jo pregleda vaša ekipa, in za spremljanje vaj za koleno. Posnetki vaj se obdelajo samo na telefonu in se nikjer ne shranijo.",
         "NSPhotoLibraryUsageDescription": "Da lahko izberete fotografijo rane, ki jo pregleda vaša ekipa."
       }
     },
@@ -67,15 +67,15 @@
         "expo-image-picker",
         {
           "photosPermission": "Da lahko izberete fotografijo rane, ki jo pregleda vaša ekipa.",
-          "cameraPermission": "Za fotografijo rane, ki jo pregleda vaša ekipa.",
-          "microphonePermission": "Da lahko zapis narekujete namesto tipkate. Zvok ostane na telefonu."
+          "cameraPermission": "Za fotografijo rane, ki jo pregleda vaša ekipa, in za spremljanje vaj za koleno. Posnetki vaj se obdelajo samo na telefonu in se nikjer ne shranijo.",
+          "microphonePermission": "Da lahko zapis narekujete namesto tipkate. Zvok se sproti pretvori v besedilo in se nikjer ne shrani."
         }
       ],
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "Da lahko zapis narekujete namesto tipkate. Zvok ostane na telefonu.",
-          "speechRecognitionPermission": "Da lahko zapis narekujete namesto tipkate. Zvok ostane na telefonu.",
+          "microphonePermission": "Da lahko zapis narekujete namesto tipkate. Zvok se sproti pretvori v besedilo in se nikjer ne shrani.",
+          "speechRecognitionPermission": "Da lahko zapis narekujete namesto tipkate. Zvok se sproti pretvori v besedilo in se nikjer ne shrani.",
           "androidSpeechServicePackages": [
             "com.google.android.as"
           ]
@@ -85,11 +85,20 @@
         "expo-notifications",
         {
           "color": "#1652C4",
-          "enableRemoteNotifications": false
+          "enableRemoteNotifications": true
         }
       ],
       "@react-native-community/datetimepicker",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Da lahko zapis narekujete namesto tipkate. Zvok se sproti pretvori v besedilo in se nikjer ne shrani.",
+          "enableBackgroundRecording": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,

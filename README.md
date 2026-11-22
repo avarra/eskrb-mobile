@@ -18,7 +18,7 @@ All patient-facing text is in Slovenian.
 - Expo with TypeScript and Expo Router
 - OpenID auth via expo-auth-session
 - VisionCamera v5 for the camera
-- Backend over plain REST and JSON. It handles Soniox transcription and the LLM, so no API keys live on the phone.
+- Backend over plain REST and JSON. It mints short-lived Soniox keys and calls the LLM, so no long-lived API keys live on the phone.
 
 ## Getting started
 
@@ -28,6 +28,8 @@ npx expo start
 ```
 
 Set the API base URL in an env variable. Fixtures mode returns contract JSON so the app runs without the backend.
+
+Dictation streams to Soniox with a single-use key from `POST /stt/temporary-key` and falls back to on-device recognition. Set `EXPO_PUBLIC_STT=device` to use on-device dictation only, or `EXPO_PUBLIC_SONIOX_REGION` to change the Soniox region (default `us`, which must match the backend's Soniox project; use `eu` once the backend mints keys from an EU project).
 
 ## More
 

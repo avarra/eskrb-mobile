@@ -42,7 +42,10 @@ The first version dictates on the device (see `PLAN-testflight.md`). Soniox come
 
 ### Mobile work
 
-- `@soniox/react` and `@soniox/client` with a custom audio source that streams 16 kHz PCM. Soniox's React Native example uses `@siteed/expo-audio-studio`, which needs a development build.
+**Status: implemented on the client** (`src/lib/stt/`, `src/data/stt.ts`, `useDictation` in `src/lib/dictation.ts`).
+It uses `@soniox/react` `useRecording` with model `stt-rt-v6`, `language_hints: ["sl"]` and `language_hints_strict`, and region `us` for now, because the backend's Soniox project is in the US. Switch to `eu` when the backend moves to an EU project, which must happen before real patient data. The audio source is `expo-audio` `useAudioStream`: int16 PCM at 16 kHz mono, resampled in JS if the hardware delivers another rate, with no file written. This replaces `@siteed/expo-audio-studio`, and it needs a development build. Env flags: `EXPO_PUBLIC_STT=device` forces on-device dictation, and `EXPO_PUBLIC_SONIOX_REGION` overrides `us`.
+
+- `@soniox/react` and `@soniox/client` with a custom audio source that streams 16 kHz PCM.
 - Make sure the audio library doesn't write a file, or deletes its buffer once the stream ends.
 - Live text in the same note field as on-device dictation. The field stays editable while and after speaking.
 - If offline or without a key, fall back to on-device dictation, then to typing.

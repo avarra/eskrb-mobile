@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 
 import { REMINDER } from '@/config';
 import { sl } from '@/copy/sl';
+import { pushRoute } from '@/lib/push-route';
 
 const CHANNEL = 'reminders';
 const CHECKIN_URL = '/checkin';
@@ -79,6 +80,7 @@ export async function cancelAllReminders() {
 
 export function urlFrom(response: Notifications.NotificationResponse | null | undefined): string | null {
   if (!response || response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) return null;
-  const url = response.notification.request.content.data?.url;
-  return typeof url === 'string' ? url : null;
+  const data = response.notification.request.content.data;
+  // Local reminders carry `url`; server pushes carry `kind` (+ `episodeId`).
+  return typeof data?.url === 'string' ? data.url : pushRoute(data);
 }

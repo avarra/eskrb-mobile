@@ -4,6 +4,7 @@ import type { NewCheckIn, NewLog } from '@/data/api';
 import { normalizeToken } from '@/data/auth';
 import { ApiError } from '@/data/http';
 import { api, device } from '@/data';
+import { unregisterPushToken } from '@/lib/push';
 
 export const queryClient = new QueryClient({
   // Screens show a short message; keep the real error visible while developing.
@@ -114,7 +115,11 @@ export function useSignIn() {
 export function useSignOut() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: device.signOut,
+    // Unregister while the bearer token is still stored.
+    mutationFn: async () => {
+      await unregisterPushToken();
+      await device.signOut();
+    },
     onSuccess: () => {
       qc.clear();
       qc.setQueryData(keys.session, false);

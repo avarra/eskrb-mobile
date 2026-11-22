@@ -17,7 +17,7 @@ import { useDictation } from '@/lib/dictation';
 import { usePhotoPicker } from '@/lib/photo-picker';
 import { colors, font, radius, size } from '@/theme/tokens';
 
-/** Quick log: one editable text field, on-device dictation, up to five wound photos. Text only; no audio. */
+/** Quick log: one editable text field, live dictation (Soniox, else on-device), up to five wound photos. Only text is saved or sent to us. */
 export default function Note() {
   const { data: me } = useEpisode();
   const post = usePostLog();
@@ -68,7 +68,14 @@ export default function Note() {
   };
 
   const fieldLabel = listening ? sl.note.listening : dictation.usedDictation ? sl.note.dictated : null;
-  const errorText = dictation.error === 'denied' ? sl.note.micDenied : dictation.error === 'failed' ? sl.note.dictationError : null;
+  const errorText =
+    dictation.error === 'denied'
+      ? sl.note.micDenied
+      : dictation.error === 'offline'
+        ? sl.note.dictationOffline
+        : dictation.error === 'failed'
+          ? sl.note.dictationError
+          : null;
 
   return (
     <Screen>

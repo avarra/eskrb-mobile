@@ -12,8 +12,10 @@ import { Screen } from '@/components/screen';
 import { Text } from '@/components/text';
 import { db } from '@/data/db/client';
 import { device } from '@/data';
+import { tokenStore } from '@/data/auth';
 import { setUnauthorizedHandler } from '@/data/http';
 import { keys, queryClient } from '@/data/queries';
+import { registerPushToken } from '@/lib/push';
 import { installNotificationHandler, urlFrom } from '@/lib/reminder';
 import { colors } from '@/theme/tokens';
 import migrations from '../../drizzle/migrations';
@@ -43,23 +45,36 @@ setUnauthorizedHandler(() => {
     });
 });
 
-/** Tapping the daily reminder opens the check-in, whether the app was running or not. */
+/**
+ * Tapping a notification (daily reminder or server push) opens its screen, whether the app was running or not.
+ * Only when signed in: signed out, `index` already sends the patient to sign-in.
+ */
 function useNotificationRouting(ready: boolean) {
   useEffect(() => {
     if (!ready) return;
-    const initial = urlFrom(Notifications.getLastNotificationResponse());
-    if (initial) {
-      router.push(initial as '/checkin');
-      Notifications.clearLastNotificationResponse();
-    }
-    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+    const open = async (response: Notifications.NotificationResponse | null) => {
       const url = urlFrom(response);
-      if (url) {
-        router.push(url as '/checkin');
-        Notifications.clearLastNotificationResponse();
-      }
-    });
+      if (!url) return;
+      Notifications.clearLastNotificationResponse();
+      if (!(await tokenStore.get())) return;
+      router.navigate(url as '/checkin');
+    };
+    void open(Notifications.getLastNotificationResponse());
+    const sub = Notifications.addNotificationResponseReceivedListener((response) => void open(response));
     return () => sub.remove();
+  }, [ready]);
+}
+
+/**
+ * Re-register on every start (the backend drops stale tokens). Silent: only runs if notifications were already allowed.
+ * No `addPushTokenListener` here: on iOS every token fetch emits that event, so re-registering from it loops.
+ */
+function usePushRegistration(ready: boolean) {
+  useEffect(() => {
+    if (!ready) return;
+    void (async () => {
+      if (await tokenStore.get()) await registerPushToken();
+    })();
   }, [ready]);
 }
 
@@ -72,6 +87,7 @@ export default function RootLayout() {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
   useNotificationRouting(ready && migrated);
+  usePushRegistration(ready && migrated);
 
   if (!ready) return null;
   if (migrationError) {
@@ -92,6 +108,8 @@ export default function RootLayout() {
           <Stack.Screen name="result" options={{ gestureEnabled: false, animation: 'fade' }} />
           <Stack.Screen name="note" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="camera" options={{ presentation: 'fullScreenModal', contentStyle: { backgroundColor: '#000' } }} />
+          <Stack.Screen name="exercises/index" />
+          <Stack.Screen name="exercises/[id]" options={{ presentation: 'fullScreenModal', contentStyle: { backgroundColor: '#000' } }} />
           <Stack.Screen name="notes" />
           <Stack.Screen name="message/[id]" />
           <Stack.Screen name="debug" />
