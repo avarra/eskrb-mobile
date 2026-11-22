@@ -32,6 +32,10 @@ All patient-facing text is in Slovenian.
   </tr>
 </table>
 
+**Demo video:** [watch on Google Drive](https://drive.google.com/file/d/1haiZQGL59Id-UbYqw2-wz5m2jY39M5Xc/view?usp=sharing)
+
+**Try it:** sign in with one of the demo accounts in [AUTH_CODES.md](AUTH_CODES.md). Scan the QR code from the sign-in screen or type the key.
+
 ## Stack
 
 - Expo with TypeScript and Expo Router

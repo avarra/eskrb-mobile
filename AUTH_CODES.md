@@ -2,8 +2,6 @@
 
 Patient access codes for eSkrb. On the sign-in screen tap **Skeniraj kodo QR** and scan the user's code, or type the key shown under it.
 
-> These are live credentials. Don't publish this file.
-
 ## ana
 
 <img src="auth-codes/ana.svg" width="220" alt="QR code for ana" />
